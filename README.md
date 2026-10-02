@@ -4,7 +4,8 @@
 책 위치 검색, 읽기 기록·독후감, 취향 대시보드, 구매 추천·위시리스트를 제공합니다.
 
 - 기획서: 「우리집 서재 관리 서비스 기획서」(Claude Docs)
-- 스택: Next.js 16(App Router) · Prisma 5 · PostgreSQL(통합 운영 DB) · Tailwind 4 · Docker
+- 스택: Next.js 16(App Router) · Prisma 5 · PostgreSQL(통합 운영 DB) · Tailwind 4 · Docker(Node 24 이미지)
+- 로컬 개발: Node 22 이상(`@zxing/library`가 Node 24, `vitest`가 Node 22 이상을 요구)
 
 ## 주요 기능
 

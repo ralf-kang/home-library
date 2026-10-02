@@ -1,4 +1,4 @@
-FROM node:20-slim AS base
+FROM node:24-slim AS base
 # Debian slim: Prisma가 OpenSSL을 탐지할 수 있도록 설치
 RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
@@ -27,7 +27,7 @@ RUN npm run build
 RUN npx tsc --project tsconfig.seed.build.json
 
 # 실행 단계
-FROM node:20-slim AS runner
+FROM node:24-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

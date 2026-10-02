@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #1f2933;
+  --color-muted: #6b7280;
+  --color-line: #e5e1d8;
+  --color-paper: #faf8f3;
+  --color-card: #ffffff;
+  --color-brand: #2f5d50;
+  --color-brand-soft: #e3eee9;
+  --color-accent: #b5651d;
+  --font-sans: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+}
+
+html,
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/* 공통 폼 요소 — Tailwind 4에서는 @apply로 조합하려면 @utility로 선언해야 한다 */
+@utility input {
+  @apply w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20;
+}
+@utility btn {
+  @apply inline-flex items-center justify-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-brand text-white hover:bg-brand/90;
+}
+@utility btn-ghost {
+  @apply btn border border-line bg-white text-ink hover:bg-paper;
+}
+@utility btn-danger {
+  @apply btn border border-red-200 bg-white text-red-700 hover:bg-red-50;
+}
+@utility card {
+  @apply rounded-xl border border-line bg-card p-4;
+}
+@utility chip {
+  @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium;
+}
+@utility label {
+  @apply mb-1 block text-xs font-medium text-muted;
+}

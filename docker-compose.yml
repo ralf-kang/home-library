@@ -1,0 +1,41 @@
+# docker-compose.yml — home-library app 전용 (DB는 정의하지 않음)
+#
+# DB는 .20 서버의 공용 Docker 네트워크(shared-db-net)에 이미 떠 있는 통합 PostgreSQL
+# (shared-postgres)을 쓴다. shared-db-net/shared-postgres 자체의 기동·생성은 kang-util
+# (인프라 정본)이 관리하므로 이 compose로 DB를 올리지 말 것. 최초 1회 DB/계정 생성은
+# README.md "운영 배포(.20 서버)" 절의 SQL 참고.
+#
+# 실행:
+#   docker compose up -d --build
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: home-library
+    restart: unless-stopped
+    env_file:
+      # DATABASE_URL(완성된 접속 문자열)/AUTH_SECRET/FAMILY_PIN/API 키 등.
+      # 실 서버에서는 NAS secrets에서 복사된 값으로 채워진다(.env.example 참고).
+      - .env.local
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+      TZ: Asia/Seoul
+    ports:
+      # 외부 3503 → 내부 3000. vistor-report가 3502를 쓰므로 다음 번호로 잡았다.
+      # kang-util REGISTRY.md에 등록하고, 외부 접속이 필요하면 iptime 포트포워딩도 추가할 것.
+      - "3503:3000"
+    networks:
+      - shared-db-net
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+networks:
+  shared-db-net:
+    external: true

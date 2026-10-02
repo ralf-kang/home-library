@@ -1,0 +1,4 @@
+# deploy.target — home-library 배포 대상 서버
+# 첫 번째 비주석·비공백 줄의 첫 토큰이 서버명으로 해석됩니다.
+# 유효값: server1 (ai@192.168.0.20, Linux) | server2 (ralfkang@192.168.0.30, macOS)
+server1

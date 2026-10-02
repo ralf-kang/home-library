@@ -1,0 +1,280 @@
+// 우리집 서재(home-library) 스키마
+//
+// 핵심 원칙: "서지(Book)"와 "소장본(Copy)"을 분리한다.
+//  - 읽기 기록·독후감은 서지에 붙는다(같은 책 2권이어도 독후감은 하나).
+//  - 위치·상태·대여는 소장본에 붙는다(어느 한 권을 빌려줬는지 구분).
+// 위치는 공간(ROOM) > 책장(BOOKCASE) > 칸(SHELF) 자기참조 트리이고, 소장본은 코드 문자열이
+// 아니라 위치 ID를 가리키므로 코드/이름을 바꿔도 소장본 데이터는 그대로다.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MemberRole {
+  ADULT
+  CHILD
+}
+
+model Member {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  role      MemberRole @default(ADULT)
+  isAdmin   Boolean    @default(false) @map("is_admin")
+  sortOrder Int        @default(0) @map("sort_order")
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  ownedCopies Copy[]     @relation("CopyOwner")
+  readings    Reading[]
+  wishItems   WishItem[]
+  copyMoves   CopyMove[]
+  loans       Loan[]
+
+  @@map("members")
+}
+
+model Zone {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  color     String     @default("#64748b")
+  sortOrder Int        @default(0) @map("sort_order")
+  locations Location[]
+
+  @@map("zones")
+}
+
+enum LocationKind {
+  ROOM
+  BOOKCASE
+  SHELF
+}
+
+model Location {
+  id        String       @id @default(cuid())
+  kind      LocationKind
+  // 이 단계만의 코드 조각(예: LV / B2 / S3). 전체 코드는 상위를 이어 붙여 계산한다.
+  code      String
+  name      String
+  parentId  String?      @map("parent_id")
+  parent    Location?    @relation("LocationTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children  Location[]   @relation("LocationTree")
+  zoneId    String?      @map("zone_id")
+  zone      Zone?        @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  sortOrder Int          @default(0) @map("sort_order")
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  copies    Copy[]
+  movesFrom CopyMove[] @relation("MoveFrom")
+  movesTo   CopyMove[] @relation("MoveTo")
+
+  @@unique([parentId, code])
+  @@index([parentId])
+  @@map("locations")
+}
+
+model Series {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  totalVolumes Int?     @map("total_volumes")
+  createdAt    DateTime @default(now()) @map("created_at")
+  books        Book[]
+
+  @@map("series")
+}
+
+enum AgeGroup {
+  ADULT
+  CHILD
+}
+
+model Book {
+  id            String   @id @default(cuid())
+  isbn13        String?  @unique
+  title         String
+  // 초성 검색용(예: "사피엔스" → "ㅅㅍㅇㅅ"). 저장 시 서버가 계산한다.
+  titleChosung  String   @default("") @map("title_chosung")
+  authors       String   @default("")
+  publisher     String   @default("")
+  pubYear       Int?     @map("pub_year")
+  // 국립중앙도서관 KDC 분류(있을 때만) + 가족이 쓰는 분야(검색·통계 기준)
+  kdc           String?
+  category      String   @default("미분류")
+  coverUrl      String?  @map("cover_url")
+  description   String?
+  ageGroup      AgeGroup @default(ADULT) @map("age_group")
+  tags          String[] @default([])
+  seriesId      String?  @map("series_id")
+  series        Series?  @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  volumeNo      Int?     @map("volume_no")
+  // 사진 판독 등으로 들어와 사람이 아직 확인하지 않은 서지
+  needsReview   Boolean  @default(false) @map("needs_review")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  copies   Copy[]
+  readings Reading[]
+
+  @@index([category])
+  @@index([seriesId])
+  @@map("books")
+}
+
+enum CopyStatus {
+  ON_SHELF
+  OUT_READING
+  LOANED
+  LOST
+  DISPOSED
+}
+
+model Copy {
+  id         String     @id @default(cuid())
+  // 관리번호 HL-000123의 숫자 부분. 표시용 코드는 formatCopyCode()로 만든다.
+  seq        Int        @unique @default(autoincrement())
+  bookId     String     @map("book_id")
+  book       Book       @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  locationId String?    @map("location_id")
+  location   Location?  @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  ownerId    String?    @map("owner_id")
+  owner      Member?    @relation("CopyOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  status     CopyStatus @default(ON_SHELF)
+  lendable   Boolean    @default(true)
+  note       String?
+  createdAt  DateTime   @default(now()) @map("created_at")
+
+  moves CopyMove[]
+  loans Loan[]
+
+  @@index([bookId])
+  @@index([locationId])
+  @@map("copies")
+}
+
+model CopyMove {
+  id             String    @id @default(cuid())
+  copyId         String    @map("copy_id")
+  copy           Copy      @relation(fields: [copyId], references: [id], onDelete: Cascade)
+  fromLocationId String?   @map("from_location_id")
+  fromLocation   Location? @relation("MoveFrom", fields: [fromLocationId], references: [id], onDelete: SetNull)
+  toLocationId   String?   @map("to_location_id")
+  toLocation     Location? @relation("MoveTo", fields: [toLocationId], references: [id], onDelete: SetNull)
+  movedById      String?   @map("moved_by_id")
+  movedBy        Member?   @relation(fields: [movedById], references: [id], onDelete: SetNull)
+  movedAt        DateTime  @default(now()) @map("moved_at")
+
+  @@index([copyId])
+  @@map("copy_moves")
+}
+
+enum ReadingStatus {
+  WANT
+  READING
+  DONE
+  DROPPED
+  REFERENCE
+}
+
+model Reading {
+  id         String        @id @default(cuid())
+  memberId   String        @map("member_id")
+  member     Member        @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  bookId     String        @map("book_id")
+  book       Book          @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  status     ReadingStatus
+  rating     Int?
+  startedAt  DateTime?     @map("started_at") @db.Date
+  finishedAt DateTime?     @map("finished_at") @db.Date
+  readCount  Int           @default(0) @map("read_count")
+  // 아이 책: 좋아함(1)/보통(0)/싫어함(-1)
+  reaction   Int?
+  updatedAt  DateTime      @updatedAt @map("updated_at")
+  notes      Note[]
+
+  @@unique([memberId, bookId])
+  @@index([memberId, status])
+  @@map("readings")
+}
+
+enum NoteKind {
+  REVIEW
+  QUOTE
+  MEMO
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  readingId String   @map("reading_id")
+  reading   Reading  @relation(fields: [readingId], references: [id], onDelete: Cascade)
+  kind      NoteKind
+  body      String
+  page      Int?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([readingId])
+  @@map("notes")
+}
+
+enum WishStatus {
+  INTERESTED
+  PLANNED
+  PURCHASED
+  DISMISSED
+}
+
+enum WishSource {
+  MANUAL
+  RECOMMEND
+}
+
+model WishItem {
+  id        String     @id @default(cuid())
+  memberId  String     @map("member_id")
+  member    Member     @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  isbn13    String?
+  title     String
+  authors   String     @default("")
+  publisher String     @default("")
+  coverUrl  String?    @map("cover_url")
+  reason    String?
+  source    WishSource @default(MANUAL)
+  status    WishStatus @default(INTERESTED)
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@unique([memberId, isbn13])
+  @@index([memberId, status])
+  @@map("wish_items")
+}
+
+// 2차 범위(대여·반납). 구조만 먼저 둔다 — MVP 화면에서는 쓰지 않는다.
+model Loan {
+  id           String    @id @default(cuid())
+  copyId       String    @map("copy_id")
+  copy         Copy      @relation(fields: [copyId], references: [id], onDelete: Cascade)
+  borrowerName String    @map("borrower_name")
+  handledById  String?   @map("handled_by_id")
+  handledBy    Member?   @relation(fields: [handledById], references: [id], onDelete: SetNull)
+  loanedAt     DateTime  @default(now()) @map("loaned_at")
+  dueAt        DateTime? @map("due_at")
+  returnedAt   DateTime? @map("returned_at")
+
+  @@index([copyId])
+  @@map("loans")
+}
+
+// 추천 결과 저장(외부 API·Claude 호출은 '추천 갱신'을 눌렀을 때만 — 비용 통제).
+model RecommendationRun {
+  id        String   @id @default(cuid())
+  memberId  String   @map("member_id")
+  // [{ isbn13, title, authors, publisher, coverUrl, reason, source }]
+  items     Json
+  usedAi    Boolean  @default(false) @map("used_ai")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([memberId, createdAt])
+  @@map("recommendation_runs")
+}

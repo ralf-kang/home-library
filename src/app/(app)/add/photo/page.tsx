@@ -2,14 +2,14 @@ import Link from 'next/link'
 import { DEFAULT_CATEGORIES } from '@/lib/format'
 import { isClaudeConfigured } from '@/lib/claude'
 import { isKakaoConfigured } from '@/lib/book-lookup'
-import { requireAdmin } from '@/server/auth'
+import { requireCan } from '@/server/auth'
 import { listMembers, loadLocations, shelfOptions } from '@/server/queries'
 import PhotoImport from './PhotoImport'
 
 export default async function PhotoImportPage({ searchParams }: { searchParams: Promise<{ loc?: string }> }) {
-  const me = await requireAdmin()
+  const { member: me, household } = await requireCan('book.write')
   const { loc: preset } = await searchParams
-  const [loc, members] = await Promise.all([loadLocations(), listMembers()])
+  const [loc, members] = await Promise.all([loadLocations(household.id), listMembers(household.id)])
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">

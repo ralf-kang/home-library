@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { ClaudeError, isClaudeConfigured, readShelfPhoto, type ImageMediaType } from '@/lib/claude'
-import { requireAdmin } from '@/server/auth'
+import { requireCan } from '@/server/auth'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 120
@@ -10,7 +10,7 @@ const MAX_BASE64 = 10 * 1024 * 1024 // Claude API 이미지 한도(10MB, base64 
 
 /** 서가 칸 사진(JSON: { image: base64, mediaType }) → 책등 판독 목록. */
 export async function POST(req: NextRequest) {
-  await requireAdmin()
+  await requireCan('book.write')
   if (!isClaudeConfigured()) {
     return Response.json({ error: 'ANTHROPIC_API_KEY가 설정되지 않아 사진 판독을 쓸 수 없습니다.' }, { status: 501 })
   }

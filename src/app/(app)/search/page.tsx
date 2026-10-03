@@ -2,13 +2,16 @@ import Link from 'next/link'
 import type { AgeGroup, ReadingStatus } from '@prisma/client'
 import BookCover from '@/components/BookCover'
 import { READING_STATUS_LABEL } from '@/lib/format'
+import { can } from '@/lib/permissions'
 import { requireMember } from '@/server/auth'
 import { listCategories, listMembers, loadLocations, searchBooks, type SearchParams } from '@/server/queries'
 
 const MY_STATUS: (ReadingStatus | 'UNREAD')[] = ['UNREAD', 'READING', 'DONE', 'WANT', 'DROPPED', 'REFERENCE']
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  const me = await requireMember()
+  const { member: me, household } = await requireMember()
+  const hid = household.id
+  const canWrite = can(me.role, 'book.write')
   const sp = await searchParams
   const params: SearchParams = {
     q: sp.q,
@@ -20,20 +23,19 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     needsReview: sp.review === '1',
     page: Number(sp.page) || 1,
   }
-  const loc = await loadLocations()
-  const [result, categories, members] = await Promise.all([searchBooks(me.id, params, loc), listCategories(), listMembers()])
+  const loc = await loadLocations(hid)
+  const [result, categories, members] = await Promise.all([searchBooks(hid, me.id, params, loc), listCategories(hid), listMembers(hid)])
   const hasFilter = Boolean(params.q || params.category || params.locationId || params.ownerId || params.ageGroup || params.myStatus || params.needsReview)
   const pageHref = (page: number) => {
     const u = new URLSearchParams(Object.entries(sp).filter((e): e is [string, string] => Boolean(e[1])))
     u.set('page', String(page))
-    return `/?${u}`
+    return `/search?${u}`
   }
 
   return (
     <div className="space-y-4">
-      {sp.forbidden && <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">관리자만 쓸 수 있는 화면입니다.</p>}
       {sp.deleted && <p className="rounded-lg bg-brand-soft p-3 text-sm text-brand">책을 지웠습니다.</p>}
-      <form className="space-y-2" action="/">
+      <form className="space-y-2" action="/search">
         <div className="flex gap-2">
           <input
             name="q"
@@ -87,7 +89,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
               <option value="CHILD">어린이 책</option>
             </select>
           </div>
-          {me.isAdmin && (
+          {canWrite && (
             <label className="mt-2 flex items-center gap-2 text-muted">
               <input type="checkbox" name="review" value="1" defaultChecked={params.needsReview} /> 확인 필요한 책만(사진 판독 등록분)
             </label>
@@ -100,7 +102,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           {hasFilter ? '검색 결과' : '최근 등록·수정한 책'} <b className="text-ink">{result.total.toLocaleString()}</b>권
         </span>
         {hasFilter && (
-          <Link href="/" className="underline">
+          <Link href="/search" className="underline">
             초기화
           </Link>
         )}
@@ -109,7 +111,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       {result.books.length === 0 ? (
         <div className="card text-center text-sm text-muted">
           {hasFilter ? '조건에 맞는 책이 없습니다.' : '아직 등록된 책이 없습니다.'}
-          {me.isAdmin && (
+          {canWrite && (
             <div className="mt-3">
               <Link href="/add" className="btn-primary">
                 책 등록하기

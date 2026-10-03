@@ -1,27 +1,34 @@
 /**
  * Edge 프록시(Next.js 16) — jose만 사용. prisma 등 Node 전용 모듈 import 금지.
- * 이 앱은 가족 전용이라 /login, /api/health를 뺀 모든 경로가 로그인 필요.
- * 1차 방어선일 뿐이며, 페이지·서버 액션은 각자 requireMember()로 재검증한다.
+ * 공개 경로(랜딩·소개·약관·로그인·초대·인증 콜백) 외에는 로그인 필요.
+ * 1차 방어선일 뿐이며, 페이지·서버 액션·API는 각자 requireMember()/requireUser()로 재검증한다.
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { verifySession, SESSION_COOKIE } from '@/lib/session'
 
+const PUBLIC_EXACT = new Set(['/', '/about', '/terms', '/privacy', '/pricing', '/login'])
+const PUBLIC_PREFIX = ['/invite/', '/api/auth/', '/api/health']
+
+function isPublic(pathname: string) {
+  return PUBLIC_EXACT.has(pathname) || PUBLIC_PREFIX.some((p) => pathname.startsWith(p))
+}
+
 export async function proxy(req: NextRequest) {
-  const { pathname } = req.nextUrl
+  const { pathname, search } = req.nextUrl
   const token = req.cookies.get(SESSION_COOKIE)?.value
   const session = token ? await verifySession(token) : null
 
-  if (pathname === '/login') {
-    return session ? NextResponse.redirect(new URL('/', req.url)) : NextResponse.next()
-  }
-  if (session) return NextResponse.next()
+  if (pathname === '/login' && session) return NextResponse.redirect(new URL('/dashboard', req.url))
+  if (session || isPublic(pathname)) return NextResponse.next()
 
   if (pathname.startsWith('/api/')) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
-  return NextResponse.redirect(new URL('/login', req.url))
+  const login = new URL('/login', req.url)
+  login.searchParams.set('next', pathname + search)
+  return NextResponse.redirect(login)
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|icon.svg|api/health).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|icon.svg).*)'],
 }

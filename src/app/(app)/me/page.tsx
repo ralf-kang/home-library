@@ -7,7 +7,7 @@ import { requireMember } from '@/server/auth'
 type ShelfItem = { id: string; bookId: string; rating: number | null; book: { title: string; coverUrl: string | null } }
 
 export default async function MePage() {
-  const me = await requireMember()
+  const { member: me } = await requireMember()
   const yearStart = new Date(`${new Date().getFullYear()}-01-01T00:00:00.000Z`)
   const [reading, doneThisYear, want, notes] = await Promise.all([
     prisma.reading.findMany({ where: { memberId: me.id, status: 'READING' }, include: { book: true }, orderBy: { updatedAt: 'desc' } }),

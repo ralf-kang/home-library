@@ -11,6 +11,7 @@ import {
   formatCopyCode,
   formatDate,
 } from '@/lib/format'
+import { can } from '@/lib/permissions'
 import { addCopy, deleteBook, deleteCopy, updateCopy } from '@/server/actions/books'
 import { addNote, deleteNote, incrementReadCount, saveReading } from '@/server/actions/readings'
 import { requireMember } from '@/server/auth'
@@ -21,17 +22,30 @@ export default async function BookPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ added?: string }>
+  searchParams: Promise<{ added?: string; as?: string }>
 }) {
-  const me = await requireMember()
+  const { member: me, household } = await requireMember()
+  const hid = household.id
   const { id } = await params
-  const { added } = await searchParams
-  const [book, loc, members] = await Promise.all([getBookDetail(id), loadLocations(), listMembers()])
+  const { added, as } = await searchParams
+  const [book, loc, members] = await Promise.all([getBookDetail(hid, id), loadLocations(hid), listMembers(hid)])
   if (!book) notFound()
+  const canWrite = can(me.role, 'book.write')
+  const canDelete = can(me.role, 'book.delete')
+  // 계정 없는 구성원(아이)의 기록을 대신 입력할 수 있다(reading.proxy)
+  const proxyTargets = can(me.role, 'reading.proxy') ? members.filter((m) => !m.userId && m.id !== me.id) : []
+  const subject = proxyTargets.find((m) => m.id === as) ?? me
+  const asMemberId = subject.id === me.id ? '' : subject.id
   const shelves = shelfOptions(loc)
-  const mine = book.readings.find((r) => r.memberId === me.id)
-  const others = book.readings.filter((r) => r.memberId !== me.id)
-  const allNotes = book.readings.flatMap((r) => r.notes.map((n) => ({ ...n, member: r.member, mine: r.memberId === me.id })))
+  const mine = book.readings.find((r) => r.memberId === subject.id)
+  const others = book.readings.filter((r) => r.memberId !== subject.id)
+  const allNotes = book.readings.flatMap((r) =>
+    r.notes.map((n) => ({
+      ...n,
+      member: r.member,
+      mine: r.memberId === me.id || proxyTargets.some((p) => p.id === r.memberId),
+    })),
+  )
   allNotes.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 
   return (
@@ -49,19 +63,19 @@ export default async function BookPage({
           </h1>
           <p className="text-muted">{[book.authors, book.publisher, book.pubYear].filter(Boolean).join(' · ')}</p>
           <div className="flex flex-wrap gap-1 text-xs">
-            <Link href={`/?category=${encodeURIComponent(book.category)}`} className="chip bg-brand-soft text-brand">
+            <Link href={`/search?category=${encodeURIComponent(book.category)}`} className="chip bg-brand-soft text-brand">
               {book.category}
             </Link>
             <span className="chip bg-paper ring-1 ring-line">{book.ageGroup === 'CHILD' ? '어린이 책' : '어른 책'}</span>
             {book.series && (
-              <Link href={`/?q=${encodeURIComponent(book.series.name)}`} className="chip bg-paper ring-1 ring-line">
+              <Link href={`/search?q=${encodeURIComponent(book.series.name)}`} className="chip bg-paper ring-1 ring-line">
                 시리즈 · {book.series.name}
               </Link>
             )}
             {book.isbn13 && <span className="chip bg-paper text-muted ring-1 ring-line">ISBN {book.isbn13}</span>}
             {book.kdc && <span className="chip bg-paper text-muted ring-1 ring-line">KDC {book.kdc}</span>}
             {book.tags.map((t) => (
-              <Link key={t} href={`/?q=${encodeURIComponent(t)}`} className="chip bg-paper ring-1 ring-line">
+              <Link key={t} href={`/search?q=${encodeURIComponent(t)}`} className="chip bg-paper ring-1 ring-line">
                 #{t}
               </Link>
             ))}
@@ -72,14 +86,16 @@ export default async function BookPage({
             </p>
           )}
           {book.description && <p className="text-sm leading-relaxed whitespace-pre-line text-ink/80">{book.description}</p>}
-          {me.isAdmin && (
+          {canWrite && (
             <div className="flex gap-2 pt-1">
               <Link href={`/books/${book.id}/edit`} className="btn-ghost">
                 서지 수정
               </Link>
-              <ConfirmButton action={deleteBook.bind(null, book.id)} confirm="이 책과 모든 소장본·읽기 기록을 지울까요?">
-                삭제
-              </ConfirmButton>
+              {canDelete && (
+                <ConfirmButton action={deleteBook.bind(null, book.id)} confirm="이 책과 모든 소장본·읽기 기록을 지울까요?">
+                  삭제
+                </ConfirmButton>
+              )}
             </div>
           )}
         </div>
@@ -108,7 +124,7 @@ export default async function BookPage({
                   {!c.lendable && <span className="chip bg-red-50 text-red-700">대여 안 함</span>}
                 </div>
                 {c.note && <p className="mt-1 text-sm text-muted">{c.note}</p>}
-                {me.isAdmin && (
+                {canWrite && (
                   <details className="mt-2 text-sm">
                     <summary className="cursor-pointer text-muted">위치·상태 바꾸기</summary>
                     <form action={updateCopy.bind(null, c.id)} className="mt-2 grid gap-2 sm:grid-cols-4">
@@ -141,9 +157,11 @@ export default async function BookPage({
                       </label>
                       <div className="flex gap-2">
                         <button className="btn-primary">저장</button>
-                        <ConfirmButton action={deleteCopy.bind(null, c.id)} confirm="이 소장본 한 권을 지울까요?">
-                          지우기
-                        </ConfirmButton>
+                        {canDelete && (
+                          <ConfirmButton action={deleteCopy.bind(null, c.id)} confirm="이 소장본 한 권을 지울까요?">
+                            지우기
+                          </ConfirmButton>
+                        )}
                       </div>
                     </form>
                     {c.moves.length > 0 && (
@@ -162,7 +180,7 @@ export default async function BookPage({
             )
           })}
         </ul>
-        {me.isAdmin && (
+        {canWrite && (
           <details className="text-sm">
             <summary className="cursor-pointer text-muted">같은 책 한 권 더 추가</summary>
             <form action={addCopy.bind(null, book.id)} className="mt-2 flex flex-wrap gap-2">
@@ -190,14 +208,29 @@ export default async function BookPage({
 
       <section className="card space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="font-semibold">내 읽기 기록</h2>
+          <h2 className="font-semibold">{subject.id === me.id ? '내 읽기 기록' : `${subject.name}의 읽기 기록`}</h2>
           {book.ageGroup === 'CHILD' && (
-            <form action={incrementReadCount.bind(null, book.id)}>
+            <form action={incrementReadCount.bind(null, book.id, asMemberId || undefined)}>
               <button className="btn-ghost">한 번 더 읽어 줬어요 ({mine?.readCount ?? 0}회)</button>
             </form>
           )}
         </div>
+        {proxyTargets.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1 text-xs">
+            <span className="text-muted">누구의 기록:</span>
+            {[me, ...proxyTargets].map((m) => (
+              <Link
+                key={m.id}
+                href={m.id === me.id ? `/books/${book.id}` : `/books/${book.id}?as=${m.id}`}
+                className={`chip px-3 py-1 ${m.id === subject.id ? 'bg-brand text-white' : 'bg-white ring-1 ring-line'}`}
+              >
+                {m.id === me.id ? '나' : m.name}
+              </Link>
+            ))}
+          </div>
+        )}
         <ActionForm action={saveReading.bind(null, book.id)} className="grid gap-2 sm:grid-cols-6">
+          <input type="hidden" name="asMemberId" value={asMemberId} />
           {/* 저장 후 서버가 다시 그린 값으로 기본값을 갱신하려고 필드만 다시 마운트한다(결과 메시지는 유지) */}
           <Fragment key={mine ? mine.updatedAt.toISOString() : 'none'}>
           <div className="sm:col-span-2">
@@ -261,6 +294,7 @@ export default async function BookPage({
       <section className="card space-y-3">
         <h2 className="font-semibold">독후감 · 인용구 · 메모</h2>
         <ActionForm action={addNote.bind(null, book.id)} className="space-y-2" resetOnSuccess>
+          <input type="hidden" name="asMemberId" value={asMemberId} />
           <div className="flex gap-2">
             <select name="kind" defaultValue="REVIEW" className="input max-w-[8rem]">
               {Object.entries(NOTE_KIND_LABEL).map(([k, label]) => (

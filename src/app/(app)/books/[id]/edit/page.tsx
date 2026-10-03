@@ -4,16 +4,17 @@ import BookForm from '@/components/BookForm'
 import { prisma } from '@/lib/db'
 import { DEFAULT_CATEGORIES } from '@/lib/format'
 import { updateBook } from '@/server/actions/books'
-import { requireAdmin } from '@/server/auth'
+import { requireCan } from '@/server/auth'
 import { listCategories } from '@/server/queries'
 
 export default async function EditBookPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin()
+  const { household } = await requireCan('book.write')
+  const hid = household.id
   const { id } = await params
   const [book, cats, series] = await Promise.all([
-    prisma.book.findUnique({ where: { id }, include: { series: true } }),
-    listCategories(),
-    prisma.series.findMany({ select: { name: true }, orderBy: { name: 'asc' } }),
+    prisma.book.findFirst({ where: { id, householdId: hid }, include: { series: true } }),
+    listCategories(hid),
+    prisma.series.findMany({ where: { householdId: hid }, select: { name: true }, orderBy: { name: 'asc' } }),
   ])
   if (!book) notFound()
   return (

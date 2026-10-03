@@ -12,7 +12,7 @@ import { s, type ActionResult } from '@/server/form'
 const STATUSES: WishStatus[] = ['INTERESTED', 'PLANNED', 'PURCHASED', 'DISMISSED']
 
 export async function addWish(_prev: ActionResult | null, form: FormData): Promise<ActionResult> {
-  const me = await requireMember()
+  const { member: me } = await requireMember()
   const title = s(form, 'title')
   if (!title) return { ok: false, error: '제목을 입력해 주세요.' }
   const isbn13 = s(form, 'isbn13') ? normalizeIsbn(s(form, 'isbn13')!) : null
@@ -45,18 +45,21 @@ export async function addWish(_prev: ActionResult | null, form: FormData): Promi
  * 위치 미지정 소장본 1권을 추가한다. 위치는 나중에 서가 화면에서 지정한다.
  */
 export async function setWishStatus(id: string, status: WishStatus) {
-  const me = await requireMember()
+  const { member: me, household } = await requireMember()
   if (!STATUSES.includes(status)) throw new Error('잘못된 상태입니다.')
   const wish = await prisma.wishItem.findUnique({ where: { id } })
   if (!wish || wish.memberId !== me.id) throw new Error('본인 위시리스트만 바꿀 수 있습니다.')
   if (status === 'PURCHASED' && wish.status !== 'PURCHASED') {
     const looked = wish.isbn13 ? await lookupIsbn(wish.isbn13) : null
     await prisma.$transaction(async (tx) => {
-      const existing = wish.isbn13 ? await tx.book.findUnique({ where: { isbn13: wish.isbn13 } }) : null
+      const existing = wish.isbn13
+        ? await tx.book.findUnique({ where: { householdId_isbn13: { householdId: household.id, isbn13: wish.isbn13 } } })
+        : null
       const book =
         existing ??
         (await tx.book.create({
           data: {
+            householdId: household.id,
             isbn13: wish.isbn13,
             title: wish.title,
             titleChosung: toChosung(wish.title),
@@ -79,7 +82,7 @@ export async function setWishStatus(id: string, status: WishStatus) {
 }
 
 export async function deleteWish(id: string) {
-  const me = await requireMember()
+  const { member: me } = await requireMember()
   await prisma.wishItem.deleteMany({ where: { id, memberId: me.id } })
   revalidatePath('/recommend')
 }

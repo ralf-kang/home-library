@@ -57,12 +57,12 @@ async function libraryRecommendations(isbn13: string, type: 'mania' | 'reader'):
  *  3) 고르기: Claude가 있으면 최대 10권+이유, 없으면 규칙 순서대로 10권
  * '집에 있는데 안 읽은 책'은 매번 DB에서 바로 계산하므로 여기 저장하지 않는다(recommend 페이지).
  */
-export async function refreshRecommendations(memberId: string) {
-  const member = await prisma.member.findUniqueOrThrow({ where: { id: memberId } })
-  const profile = await buildProfile(memberId)
+export async function refreshRecommendations(hid: string, memberId: string) {
+  const member = await prisma.member.findFirstOrThrow({ where: { id: memberId, householdId: hid } })
+  const profile = await buildProfile(hid, memberId)
 
   const [ownedIsbns, wishes] = await Promise.all([
-    prisma.book.findMany({ where: { isbn13: { not: null } }, select: { isbn13: true } }),
+    prisma.book.findMany({ where: { householdId: hid, isbn13: { not: null } }, select: { isbn13: true } }),
     prisma.wishItem.findMany({ where: { memberId }, select: { isbn13: true, title: true } }),
   ])
   const excluded = new Set<string>([
@@ -89,12 +89,12 @@ export async function refreshRecommendations(memberId: string) {
   // 1-b. 도서관 대출 데이터(좋아한 책을 빌린 사람들이 함께 빌린 책)
   for (const fav of profile.favoriteBooks.slice(0, 3)) {
     if (!fav.isbn13) continue
-    for (const c of await libraryRecommendations(fav.isbn13, member.role === 'CHILD' ? 'reader' : 'mania')) {
+    for (const c of await libraryRecommendations(fav.isbn13, member.ageGroup === 'CHILD' ? 'reader' : 'mania')) {
       push(c, `『${fav.title}』을 읽은 도서관 이용자들이 함께 빌린 책`, 'library')
     }
   }
   // 1-c. 시리즈 빈 권
-  for (const s of (await seriesGaps()).slice(0, 5)) {
+  for (const s of (await seriesGaps(hid)).slice(0, 5)) {
     push(
       { isbn13: null, title: `${s.name} ${s.missing.slice(0, 5).join('·')}권`, authors: '', publisher: '', pubYear: null, coverUrl: null, description: null, kdc: null, source: 'kakao' },
       `가진 시리즈의 빠진 권(${s.missing.length}권)`,
@@ -114,7 +114,7 @@ export async function refreshRecommendations(memberId: string) {
       })
       const picks = await pickRecommendations({
         memberName: member.name,
-        isChild: member.role === 'CHILD',
+        isChild: member.ageGroup === 'CHILD',
         profileSummary: describeProfile(profile),
         recentNotes: notes.map((n) => n.body.slice(0, 200)),
         candidates: pool.slice(0, 60).map((c) => ({ title: c.title, authors: c.authors, publisher: c.publisher, source: c.why })),

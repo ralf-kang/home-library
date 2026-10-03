@@ -16,15 +16,16 @@ import type { RecItem } from '@/server/recommend'
 const SOURCE_LABEL: Record<RecItem['source'], string> = { author: '좋아한 저자', library: '도서관 대출 데이터', series: '시리즈 빈 권' }
 
 export default async function RecommendPage() {
-  const me = await requireMember()
-  const profile = await buildProfile(me.id)
+  const { member: me, household } = await requireMember()
+  const profile = await buildProfile(household.id, me.id)
   const topCats = profile.topCategories.slice(0, 3).map(([c]) => c)
 
   // "사기 전에, 이 책부터": 취향 상위 분야(기록이 없으면 전체)에서 집에 있는데 아직 안 읽은 책
   const ownedUnread = await prisma.book.findMany({
     where: {
+      householdId: household.id,
       copies: { some: { status: { in: ['ON_SHELF', 'OUT_READING'] } } },
-      ageGroup: me.role === 'CHILD' ? 'CHILD' : 'ADULT',
+      ageGroup: me.ageGroup,
       readings: { none: { memberId: me.id } },
       ...(topCats.length ? { category: { in: topCats } } : {}),
     },

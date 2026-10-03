@@ -1,65 +1,181 @@
 import ActionForm from '@/components/ActionForm'
 import ConfirmButton from '@/components/ConfirmButton'
 import { prisma } from '@/lib/db'
-import { LOCATION_KIND_LABEL } from '@/lib/format'
+import { LOCATION_KIND_LABEL, formatDate } from '@/lib/format'
 import type { LocationNode } from '@/lib/location'
-import { addShelves, deleteLocation, deleteMember, deleteZone, saveLocation, saveMember, saveZone } from '@/server/actions/settings'
-import { requireAdmin } from '@/server/auth'
-import { listMembers, loadLocations, type LocationIndex } from '@/server/queries'
+import { ROLE_LABEL, ROLE_RANK, assignableRoles, can } from '@/lib/permissions'
+import { addShelves, deleteLocation, deleteZone, saveLocation, saveZone } from '@/server/actions/settings'
+import {
+  createFamilyInvite,
+  deleteMember,
+  leaveHousehold,
+  revokeInvite,
+  saveMember,
+  updateHousehold,
+} from '@/server/actions/household'
+import { requireCan } from '@/server/auth'
+import { copyCountsByLocation, listMembers, loadLocations, type LocationIndex } from '@/server/queries'
 
 export default async function SettingsPage() {
-  const me = await requireAdmin()
-  const [members, zones, loc] = await Promise.all([
-    listMembers(),
-    prisma.zone.findMany({ orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }] }),
-    loadLocations(),
+  const { member: me, household } = await requireCan('family.invite')
+  const hid = household.id
+  const [members, zones, loc, counts, invites] = await Promise.all([
+    listMembers(hid),
+    prisma.zone.findMany({ where: { householdId: hid }, orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }] }),
+    loadLocations(hid),
+    copyCountsByLocation(hid),
+    prisma.invite.findMany({
+      where: { householdId: hid, kind: 'FAMILY', revokedAt: null, expiresAt: { gt: new Date() } },
+      orderBy: { createdAt: 'desc' },
+      include: { createdBy: { select: { name: true } } },
+    }),
   ])
-  const counts = new Map(
-    (await prisma.copy.groupBy({ by: ['locationId'], _count: { _all: true } })).map((r) => [r.locationId, r._count._all]),
-  )
+  const roles = assignableRoles(me.role)
+  const isOwner = can(me.role, 'household.manage')
+  const placeholders = members.filter((m) => !m.userId)
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold">설정</h1>
+      <h1 className="text-xl font-bold">서재 설정</h1>
+
+      <section className="card space-y-3" id="household">
+        <h2 className="font-semibold">서재 정보</h2>
+        {isOwner ? (
+          <ActionForm action={updateHousehold} className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+            <div>
+              <label className="label">서재 이름</label>
+              <input name="name" defaultValue={household.name} className="input" required maxLength={40} />
+            </div>
+            <div>
+              <label className="label">우리 동네(시·군·구) — 도서관·인기대출 정보 기준</label>
+              <input name="regionName" defaultValue={household.regionName ?? ''} placeholder="예: 경기도 성남시 분당구" className="input" />
+              <input type="hidden" name="regionCode" value={household.regionCode ?? ''} />
+            </div>
+            <div className="flex items-end">
+              <button className="btn-primary">저장</button>
+            </div>
+          </ActionForm>
+        ) : (
+          <p className="text-sm">
+            {household.name} {household.regionName && <span className="text-muted">· {household.regionName}</span>}
+          </p>
+        )}
+        <p className="text-xs text-muted">요금제: {household.plan === 'FREE' ? '무료(현재 모든 기능 무료)' : household.plan}</p>
+      </section>
 
       <section className="card space-y-3" id="members">
         <h2 className="font-semibold">가족 구성원</h2>
-        <p className="text-xs text-muted">로그인은 구성원 선택 + 가족 공용 PIN(서버 FAMILY_PIN). 관리자만 책 등록·위치 변경·설정을 할 수 있습니다.</p>
+        <p className="text-xs text-muted">
+          소유자·관리자는 초대·위치 관리, 구성원은 책 등록, 아이는 자기 기록만 할 수 있습니다. 구글 계정이 없는 아이는 &lsquo;계정 없는
+          구성원&rsquo;으로 두고 어른이 대신 기록합니다.
+        </p>
         <ul className="space-y-2">
-          {members.map((m) => (
-            <li key={m.id}>
-              <ActionForm action={saveMember} className="flex flex-wrap items-center gap-2">
-                <input type="hidden" name="id" value={m.id} />
-                <input name="name" defaultValue={m.name} className="input max-w-[10rem]" required />
-                <select name="role" defaultValue={m.role} className="input max-w-[7rem]">
-                  <option value="ADULT">어른</option>
-                  <option value="CHILD">어린이</option>
-                </select>
-                <input name="sortOrder" type="number" defaultValue={m.sortOrder} className="input max-w-[5rem]" title="표시 순서" />
-                <label className="flex items-center gap-1 text-sm">
-                  <input type="checkbox" name="isAdmin" defaultChecked={m.isAdmin} /> 관리자
-                </label>
-                <button className="btn-ghost">저장</button>
-                {m.id !== me.id && (
-                  <ConfirmButton action={deleteMember.bind(null, m.id)} confirm={`${m.name}님을 지우면 읽기 기록·독후감도 함께 지워집니다. 계속할까요?`}>
-                    삭제
-                  </ConfirmButton>
-                )}
-              </ActionForm>
-            </li>
-          ))}
+          {members.map((m) => {
+            const editable = m.role !== 'OWNER' && ROLE_RANK[m.role] <= ROLE_RANK[me.role]
+            return (
+              <li key={m.id}>
+                <ActionForm action={saveMember} className="flex flex-wrap items-center gap-2">
+                  <input type="hidden" name="id" value={m.id} />
+                  <input name="name" defaultValue={m.name} className="input max-w-[9rem]" required />
+                  {editable ? (
+                    <select name="role" defaultValue={m.role} className="input max-w-[7rem]">
+                      {roles.map((r) => (
+                        <option key={r} value={r}>
+                          {ROLE_LABEL[r]}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <span className="chip bg-brand-soft text-brand">{ROLE_LABEL[m.role]}</span>
+                  )}
+                  <select name="ageGroup" defaultValue={m.ageGroup} className="input max-w-[6rem]">
+                    <option value="ADULT">어른</option>
+                    <option value="CHILD">어린이</option>
+                  </select>
+                  <span className="text-xs text-muted">{m.user ? m.user.email : '계정 없음'}</span>
+                  <button className="btn-ghost">저장</button>
+                  {editable && m.id !== me.id && (
+                    <ConfirmButton action={deleteMember.bind(null, m.id)} confirm={`${m.name}님을 지우면 읽기 기록·독후감도 함께 지워집니다. 계속할까요?`}>
+                      삭제
+                    </ConfirmButton>
+                  )}
+                </ActionForm>
+              </li>
+            )
+          })}
         </ul>
         <ActionForm action={saveMember} className="flex flex-wrap items-center gap-2 border-t border-line pt-3" resetOnSuccess>
-          <input name="name" placeholder="새 구성원 이름" className="input max-w-[10rem]" required />
-          <select name="role" className="input max-w-[7rem]" defaultValue="ADULT">
-            <option value="ADULT">어른</option>
+          <span className="text-sm text-muted">계정 없는 구성원 추가</span>
+          <input name="name" placeholder="이름(예: 첫째)" className="input max-w-[9rem]" required />
+          <select name="ageGroup" className="input max-w-[6rem]" defaultValue="CHILD">
             <option value="CHILD">어린이</option>
+            <option value="ADULT">어른</option>
           </select>
-          <label className="flex items-center gap-1 text-sm">
-            <input type="checkbox" name="isAdmin" /> 관리자
-          </label>
-          <button className="btn-primary">추가</button>
+          <button className="btn-ghost">추가</button>
         </ActionForm>
+        {!isOwner && (
+          <ConfirmButton action={leaveHousehold} confirm="이 서재에서 나갈까요? 내 기록은 가족이 볼 수 있게 남습니다." className="text-xs text-muted underline">
+            이 서재에서 나가기
+          </ConfirmButton>
+        )}
+      </section>
+
+      <section className="card space-y-3" id="invite">
+        <h2 className="font-semibold">가족 초대</h2>
+        <p className="text-xs text-muted">
+          링크를 받은 가족이 구글 계정으로 로그인하면 바로 이 서재에 들어옵니다(회원가입 없음). 동네 이웃은{' '}
+          <a href="/neighborhood" className="underline">동네</a> 화면에서 따로 초대합니다 — 이웃은 대여 가능한 책만 볼 수 있습니다.
+        </p>
+        <ActionForm action={createFamilyInvite} className="grid gap-2 sm:grid-cols-5">
+          <div>
+            <label className="label">역할</label>
+            <select name="role" defaultValue="MEMBER" className="input">
+              {roles.map((r) => (
+                <option key={r} value={r}>
+                  {ROLE_LABEL[r]}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="label">연결할 구성원(선택)</label>
+            <select name="memberName" defaultValue="" className="input">
+              <option value="">새 구성원</option>
+              {placeholders.map((m) => (
+                <option key={m.id} value={m.name}>
+                  {m.name}(계정 없음)
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="sm:col-span-2">
+            <label className="label">받을 구글 이메일(선택 — 지정하면 그 계정만)</label>
+            <input name="email" type="email" placeholder="family@gmail.com" className="input" />
+          </div>
+          <div>
+            <label className="label">사용 횟수</label>
+            <input name="maxUses" type="number" min={1} max={20} defaultValue={1} className="input" />
+          </div>
+          <div className="sm:col-span-5">
+            <button className="btn-primary">초대 링크 만들기</button>
+          </div>
+        </ActionForm>
+        {invites.length > 0 && (
+          <ul className="space-y-1 border-t border-line pt-3 text-sm">
+            {invites.map((i) => (
+              <li key={i.id} className="flex flex-wrap items-center gap-2">
+                <span className="chip bg-paper ring-1 ring-line">{i.role ? ROLE_LABEL[i.role] : '구성원'}</span>
+                <span className="text-muted">
+                  {i.memberName ? `${i.memberName} 연결 · ` : ''}
+                  {i.email ?? '누구나'} · {i.usedCount}/{i.maxUses}회 · {formatDate(i.expiresAt)}까지 · {i.createdBy.name}
+                </span>
+                <ConfirmButton action={revokeInvite.bind(null, i.id)} confirm="이 초대 링크를 취소할까요?" className="text-xs text-red-700 underline">
+                  취소
+                </ConfirmButton>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section className="card space-y-3" id="zones">

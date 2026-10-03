@@ -5,6 +5,13 @@
 //  - 위치·상태·대여는 소장본에 붙는다(어느 한 권을 빌려줬는지 구분).
 // 위치는 공간(ROOM) > 책장(BOOKCASE) > 칸(SHELF) 자기참조 트리이고, 소장본은 코드 문자열이
 // 아니라 위치 ID를 가리키므로 코드/이름을 바꿔도 소장본 데이터는 그대로다.
+//
+// 플랫폼(멀티 테넌트) 원칙:
+//  - 로그인 단위는 User(구글 계정), 서재 단위는 Household(가구).
+//  - Member는 "가구 안의 구성원 프로필"이다. 구글 계정이 없는 아이도 Member로 둘 수 있다(userId null).
+//  - Book·Location·Zone·Series는 householdId로 가구에 속한다. Copy·Reading·Note·WishItem 등은
+//    Book/Member를 통해 가구가 정해진다. **모든 조회·변경은 householdId 조건을 반드시 건다.**
+//  - 동네(Neighborhood) 주민은 참여 가구의 '대여 가능' 소장본만 본다(위치·기록·독후감 비공개).
 
 generator client {
   provider = "prisma-client-js"
@@ -15,18 +22,76 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum MemberRole {
-  ADULT
+// ── 계정·가구·동네 ──────────────────────────────────────────────────────────
+
+model User {
+  id          String    @id @default(cuid())
+  // 구글 OIDC subject(계정 고유 ID). 이메일은 바뀔 수 있으므로 식별은 sub로 한다.
+  googleSub   String    @unique @map("google_sub")
+  email       String
+  name        String
+  avatarUrl   String?   @map("avatar_url")
+  lastLoginAt DateTime? @map("last_login_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  members        Member[]
+  neighborhoods  NeighborMembership[]
+  loanRequests   LoanRequest[]
+  invitesCreated Invite[]             @relation("InviteCreator")
+
+  @@index([email])
+  @@index([createdAt])
+  @@map("users")
+}
+
+enum Plan {
+  FREE
+  PLUS
+}
+
+model Household {
+  id             String        @id @default(cuid())
+  name           String
+  // 요금제 골격 — 지금은 모두 FREE이고 MONETIZATION_ENABLED가 꺼져 있으면 한도를 검사하지 않는다.
+  plan           Plan          @default(FREE)
+  // 법정동 코드(10자리)와 표시용 지역명(예: "경기도 성남시 분당구"). 도서관·인기대출 위젯 기준.
+  regionCode     String?       @map("region_code")
+  regionName     String?       @map("region_name")
+  neighborhoodId String?       @map("neighborhood_id")
+  neighborhood   Neighborhood? @relation(fields: [neighborhoodId], references: [id], onDelete: SetNull)
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  members   Member[]
+  books     Book[]
+  locations Location[]
+  zones     Zone[]
+  series    Series[]
+  invites   Invite[]
+
+  @@index([neighborhoodId])
+  @@map("households")
+}
+
+// 가구 안 권한: OWNER(가구 설정·삭제) > ADMIN(초대·위치) > MEMBER(책 등록) > CHILD(내 기록만)
+enum HouseholdRole {
+  OWNER
+  ADMIN
+  MEMBER
   CHILD
 }
 
 model Member {
-  id        String     @id @default(cuid())
-  name      String     @unique
-  role      MemberRole @default(ADULT)
-  isAdmin   Boolean    @default(false) @map("is_admin")
-  sortOrder Int        @default(0) @map("sort_order")
-  createdAt DateTime   @default(now()) @map("created_at")
+  id          String        @id @default(cuid())
+  householdId String        @map("household_id")
+  household   Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  // 구글 계정과 연결된 구성원만 로그인할 수 있다. 아이 등 계정 없는 구성원은 null(어른이 대신 기록).
+  userId      String?       @map("user_id")
+  user        User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name        String
+  role        HouseholdRole @default(MEMBER)
+  ageGroup    AgeGroup      @default(ADULT) @map("age_group")
+  sortOrder   Int           @default(0) @map("sort_order")
+  createdAt   DateTime      @default(now()) @map("created_at")
 
   ownedCopies Copy[]     @relation("CopyOwner")
   readings    Reading[]
@@ -34,16 +99,106 @@ model Member {
   copyMoves   CopyMove[]
   loans       Loan[]
 
+  @@unique([householdId, name])
+  @@unique([householdId, userId])
   @@map("members")
 }
 
-model Zone {
-  id        String     @id @default(cuid())
-  name      String     @unique
-  color     String     @default("#64748b")
-  sortOrder Int        @default(0) @map("sort_order")
-  locations Location[]
+model Neighborhood {
+  id          String   @id @default(cuid())
+  name        String
+  regionCode  String?  @map("region_code")
+  regionName  String?  @map("region_name")
+  createdById String?  @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
 
+  households   Household[]
+  memberships  NeighborMembership[]
+  invites      Invite[]
+  sponsorSlots SponsorSlot[]
+
+  @@map("neighborhoods")
+}
+
+enum NeighborRole {
+  ORGANIZER
+  RESIDENT
+}
+
+model NeighborMembership {
+  id             String       @id @default(cuid())
+  neighborhoodId String       @map("neighborhood_id")
+  neighborhood   Neighborhood @relation(fields: [neighborhoodId], references: [id], onDelete: Cascade)
+  userId         String       @map("user_id")
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           NeighborRole @default(RESIDENT)
+  joinedAt       DateTime     @default(now()) @map("joined_at")
+
+  @@unique([neighborhoodId, userId])
+  @@index([userId])
+  @@map("neighbor_memberships")
+}
+
+enum InviteKind {
+  FAMILY
+  NEIGHBOR
+}
+
+// 초대 링크. 토큰 원문은 만들 때 한 번만 보여 주고 DB에는 SHA-256 해시만 둔다.
+// FAMILY는 householdId+role, NEIGHBOR는 neighborhoodId가 채워진다. email을 지정하면 그 구글 계정만 받을 수 있다.
+model Invite {
+  id             String         @id @default(cuid())
+  kind           InviteKind
+  tokenHash      String         @unique @map("token_hash")
+  householdId    String?        @map("household_id")
+  household      Household?     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  neighborhoodId String?        @map("neighborhood_id")
+  neighborhood   Neighborhood?  @relation(fields: [neighborhoodId], references: [id], onDelete: Cascade)
+  role           HouseholdRole? // FAMILY 초대로 들어올 역할(OWNER 불가)
+  memberName     String?        @map("member_name") // 가족 초대 시 미리 정한 구성원 이름(선택)
+  email          String?
+  expiresAt      DateTime       @map("expires_at")
+  maxUses        Int            @default(1) @map("max_uses")
+  usedCount      Int            @default(0) @map("used_count")
+  revokedAt      DateTime?      @map("revoked_at")
+  createdById    String         @map("created_by_id")
+  createdBy      User           @relation("InviteCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt      DateTime       @default(now()) @map("created_at")
+
+  @@index([householdId])
+  @@index([neighborhoodId])
+  @@map("invites")
+}
+
+model SponsorSlot {
+  id             String        @id @default(cuid())
+  // null이면 모든 동네·대시보드에 노출
+  neighborhoodId String?       @map("neighborhood_id")
+  neighborhood   Neighborhood? @relation(fields: [neighborhoodId], references: [id], onDelete: Cascade)
+  title          String
+  body           String?
+  imageUrl       String?       @map("image_url")
+  linkUrl        String?       @map("link_url")
+  startsAt       DateTime?     @map("starts_at")
+  endsAt         DateTime?     @map("ends_at")
+  active         Boolean       @default(true)
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  @@map("sponsor_slots")
+}
+
+// ── 서재 ──────────────────────────────────────────────────────────────────
+
+model Zone {
+  id          String     @id @default(cuid())
+  householdId String     @map("household_id")
+  household   Household  @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  name        String
+  color       String     @default("#64748b")
+  sortOrder   Int        @default(0) @map("sort_order")
+  locations   Location[]
+
+  @@unique([householdId, name])
   @@map("zones")
 }
 
@@ -54,35 +209,42 @@ enum LocationKind {
 }
 
 model Location {
-  id        String       @id @default(cuid())
-  kind      LocationKind
+  id          String       @id @default(cuid())
+  householdId String       @map("household_id")
+  household   Household    @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  kind        LocationKind
   // 이 단계만의 코드 조각(예: LV / B2 / S3). 전체 코드는 상위를 이어 붙여 계산한다.
-  code      String
-  name      String
-  parentId  String?      @map("parent_id")
-  parent    Location?    @relation("LocationTree", fields: [parentId], references: [id], onDelete: Restrict)
-  children  Location[]   @relation("LocationTree")
-  zoneId    String?      @map("zone_id")
-  zone      Zone?        @relation(fields: [zoneId], references: [id], onDelete: SetNull)
-  sortOrder Int          @default(0) @map("sort_order")
-  createdAt DateTime     @default(now()) @map("created_at")
+  code        String
+  name        String
+  parentId    String?      @map("parent_id")
+  parent      Location?    @relation("LocationTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children    Location[]   @relation("LocationTree")
+  zoneId      String?      @map("zone_id")
+  zone        Zone?        @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  sortOrder   Int          @default(0) @map("sort_order")
+  createdAt   DateTime     @default(now()) @map("created_at")
 
   copies    Copy[]
   movesFrom CopyMove[] @relation("MoveFrom")
   movesTo   CopyMove[] @relation("MoveTo")
 
+  // 최상위(공간)는 parentId가 null이라 가구 단위 중복 검사는 saveLocation에서 한다.
   @@unique([parentId, code])
+  @@index([householdId])
   @@index([parentId])
   @@map("locations")
 }
 
 model Series {
-  id           String   @id @default(cuid())
-  name         String   @unique
-  totalVolumes Int?     @map("total_volumes")
-  createdAt    DateTime @default(now()) @map("created_at")
+  id           String    @id @default(cuid())
+  householdId  String    @map("household_id")
+  household    Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  name         String
+  totalVolumes Int?      @map("total_volumes")
+  createdAt    DateTime  @default(now()) @map("created_at")
   books        Book[]
 
+  @@unique([householdId, name])
   @@map("series")
 }
 
@@ -92,33 +254,37 @@ enum AgeGroup {
 }
 
 model Book {
-  id            String   @id @default(cuid())
-  isbn13        String?  @unique
-  title         String
+  id           String    @id @default(cuid())
+  householdId  String    @map("household_id")
+  household    Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  isbn13       String?
+  title        String
   // 초성 검색용(예: "사피엔스" → "ㅅㅍㅇㅅ"). 저장 시 서버가 계산한다.
-  titleChosung  String   @default("") @map("title_chosung")
-  authors       String   @default("")
-  publisher     String   @default("")
-  pubYear       Int?     @map("pub_year")
+  titleChosung String    @default("") @map("title_chosung")
+  authors      String    @default("")
+  publisher    String    @default("")
+  pubYear      Int?      @map("pub_year")
   // 국립중앙도서관 KDC 분류(있을 때만) + 가족이 쓰는 분야(검색·통계 기준)
-  kdc           String?
-  category      String   @default("미분류")
-  coverUrl      String?  @map("cover_url")
-  description   String?
-  ageGroup      AgeGroup @default(ADULT) @map("age_group")
-  tags          String[] @default([])
-  seriesId      String?  @map("series_id")
-  series        Series?  @relation(fields: [seriesId], references: [id], onDelete: SetNull)
-  volumeNo      Int?     @map("volume_no")
+  kdc          String?
+  category     String    @default("미분류")
+  coverUrl     String?   @map("cover_url")
+  description  String?
+  ageGroup     AgeGroup  @default(ADULT) @map("age_group")
+  tags         String[]  @default([])
+  seriesId     String?   @map("series_id")
+  series       Series?   @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  volumeNo     Int?      @map("volume_no")
   // 사진 판독 등으로 들어와 사람이 아직 확인하지 않은 서지
-  needsReview   Boolean  @default(false) @map("needs_review")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  needsReview  Boolean   @default(false) @map("needs_review")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
   copies   Copy[]
   readings Reading[]
 
-  @@index([category])
+  // 같은 가구 안에서만 ISBN이 유일하다(다른 가구는 같은 책을 각자 서지로 가진다).
+  @@unique([householdId, isbn13])
+  @@index([householdId, category])
   @@index([seriesId])
   @@map("books")
 }
@@ -146,8 +312,9 @@ model Copy {
   note       String?
   createdAt  DateTime   @default(now()) @map("created_at")
 
-  moves CopyMove[]
-  loans Loan[]
+  moves        CopyMove[]
+  loans        Loan[]
+  loanRequests LoanRequest[]
 
   @@index([bookId])
   @@index([locationId])
@@ -250,20 +417,48 @@ model WishItem {
   @@map("wish_items")
 }
 
-// 2차 범위(대여·반납). 구조만 먼저 둔다 — MVP 화면에서는 쓰지 않는다.
+// 대여 기록. 동네 대여 요청을 승인하면 requestId와 함께 만들어진다(가족이 직접 기록할 수도 있다).
 model Loan {
-  id           String    @id @default(cuid())
-  copyId       String    @map("copy_id")
-  copy         Copy      @relation(fields: [copyId], references: [id], onDelete: Cascade)
-  borrowerName String    @map("borrower_name")
-  handledById  String?   @map("handled_by_id")
-  handledBy    Member?   @relation(fields: [handledById], references: [id], onDelete: SetNull)
-  loanedAt     DateTime  @default(now()) @map("loaned_at")
-  dueAt        DateTime? @map("due_at")
-  returnedAt   DateTime? @map("returned_at")
+  id           String       @id @default(cuid())
+  copyId       String       @map("copy_id")
+  copy         Copy         @relation(fields: [copyId], references: [id], onDelete: Cascade)
+  borrowerName String       @map("borrower_name")
+  requestId    String?      @unique @map("request_id")
+  request      LoanRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  handledById  String?      @map("handled_by_id")
+  handledBy    Member?      @relation(fields: [handledById], references: [id], onDelete: SetNull)
+  loanedAt     DateTime     @default(now()) @map("loaned_at")
+  dueAt        DateTime?    @map("due_at")
+  returnedAt   DateTime?    @map("returned_at")
 
   @@index([copyId])
   @@map("loans")
+}
+
+enum LoanRequestStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  RETURNED
+  CANCELED
+}
+
+// 동네 주민(또는 같은 동네의 다른 가구)이 '대여 가능' 소장본을 빌려 달라고 요청한 기록.
+model LoanRequest {
+  id              String            @id @default(cuid())
+  copyId          String            @map("copy_id")
+  copy            Copy              @relation(fields: [copyId], references: [id], onDelete: Cascade)
+  requesterUserId String            @map("requester_user_id")
+  requester       User              @relation(fields: [requesterUserId], references: [id], onDelete: Cascade)
+  status          LoanRequestStatus @default(REQUESTED)
+  message         String?
+  createdAt       DateTime          @default(now()) @map("created_at")
+  decidedAt       DateTime?         @map("decided_at")
+  loan            Loan?
+
+  @@index([copyId, status])
+  @@index([requesterUserId])
+  @@map("loan_requests")
 }
 
 // 추천 결과 저장(외부 API·Claude 호출은 '추천 갱신'을 눌렀을 때만 — 비용 통제).

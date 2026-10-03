@@ -10,6 +10,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Dockerfile/deploy 빌드가 만드는 seed 컴파일 결과물(.gitignore 대상)
+    "prisma/dist/**",
+    "prisma/dist-demo/**",
   ]),
 ]);
 

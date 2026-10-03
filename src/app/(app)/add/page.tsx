@@ -4,16 +4,17 @@ import { prisma } from '@/lib/db'
 import { DEFAULT_CATEGORIES } from '@/lib/format'
 import { isClaudeConfigured } from '@/lib/claude'
 import { createBook } from '@/server/actions/books'
-import { requireAdmin } from '@/server/auth'
+import { requireCan } from '@/server/auth'
 import { listCategories, listMembers, loadLocations, shelfOptions } from '@/server/queries'
 
 export default async function AddPage() {
-  const me = await requireAdmin()
+  const { member: me, household } = await requireCan('book.write')
+  const hid = household.id
   const [loc, members, cats, series] = await Promise.all([
-    loadLocations(),
-    listMembers(),
-    listCategories(),
-    prisma.series.findMany({ select: { name: true }, orderBy: { name: 'asc' } }),
+    loadLocations(hid),
+    listMembers(hid),
+    listCategories(hid),
+    prisma.series.findMany({ where: { householdId: hid }, select: { name: true }, orderBy: { name: 'asc' } }),
   ])
   const categories = [...new Set([...DEFAULT_CATEGORIES, ...cats.map((c) => c.category)])]
   return (

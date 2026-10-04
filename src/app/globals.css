@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
+/*
+ * 디자인 토큰 — docs/web-publishing/design-guide.html "02 비주얼 시스템"
+ * Brand #2F5D50(CTA·제목) · Paper #FAF8F3(페이지) · Soft #E3EEE9(안내) · Accent #B5651D(단계·강조) · Ink #1F2933(본문)
+ * radius: 사진 24 · 카드 16 · 입력/버튼 10 / 버튼·폼 최소 높이 44px / 콘텐츠 최대 1152px
+ */
 @theme {
   --color-ink: #1f2933;
-  --color-muted: #6b7280;
+  --color-muted: #59626b;
   --color-line: #e5e1d8;
   --color-paper: #faf8f3;
   --color-card: #ffffff;
@@ -10,6 +15,9 @@
   --color-brand-soft: #e3eee9;
   --color-accent: #b5651d;
   --font-sans: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --radius-control: 10px;
+  --radius-card: 16px;
+  --radius-photo: 24px;
 }
 
 html,
@@ -18,12 +26,40 @@ body {
   color: var(--color-ink);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  /* 한국어 어절 단위 줄바꿈, 긴 URL·파일명은 어디서든 끊는다 */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
 /* 공통 폼 요소 — Tailwind 4에서는 @apply로 조합하려면 @utility로 선언해야 한다 */
 @utility input {
-  @apply w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20;
+  @apply min-h-11 w-full rounded-[10px] border border-line bg-white px-3 py-2 text-sm outline-none transition-[border-color,box-shadow] duration-150 focus:border-brand focus:ring-2 focus:ring-brand/20;
 }
 @utility btn {
-  @apply inline-flex items-center justify-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition disabled:opacity-50;
+  @apply inline-flex min-h-11 items-center justify-center gap-1 rounded-[10px] px-4 py-2 text-sm font-semibold transition-colors duration-150 disabled:opacity-50;
 }
 @utility btn-primary {
   @apply btn bg-brand text-white hover:bg-brand/90;
@@ -31,15 +67,25 @@ body {
 @utility btn-ghost {
   @apply btn border border-line bg-white text-ink hover:bg-paper;
 }
+@utility btn-outline {
+  @apply btn border border-[#abc0b6] bg-transparent text-brand hover:bg-brand-soft;
+}
 @utility btn-danger {
   @apply btn border border-red-200 bg-white text-red-700 hover:bg-red-50;
 }
 @utility card {
-  @apply rounded-xl border border-line bg-card p-4;
+  @apply rounded-2xl border border-line bg-card p-4;
 }
 @utility chip {
   @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium;
 }
 @utility label {
   @apply mb-1 block text-xs font-medium text-muted;
+}
+/* 섹션 머리말(영문 소제목) — 랜딩·공개 페이지 */
+@utility eyebrow {
+  @apply text-[11px] font-bold tracking-[0.17em] text-accent;
+}
+@utility wrap {
+  @apply mx-auto w-full max-w-[1216px] px-4 md:px-8;
 }

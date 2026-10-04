@@ -4,6 +4,7 @@ import { isClaudeConfigured } from '@/lib/claude'
 import { isKakaoConfigured } from '@/lib/book-lookup'
 import { requireCan } from '@/server/auth'
 import { listMembers, loadLocations, shelfOptions } from '@/server/queries'
+import { ShelfPhotoGuide } from '@/components/Motion'
 import PhotoImport from './PhotoImport'
 
 export default async function PhotoImportPage({ searchParams }: { searchParams: Promise<{ loc?: string }> }) {
@@ -23,6 +24,7 @@ export default async function PhotoImportPage({ searchParams }: { searchParams: 
         <li>그 칸의 책등을 정면에서 한 장 찍습니다. 칸 하나씩 찍어야 글자가 잘 읽힙니다.</li>
         <li>AI가 읽은 목록을 확인·수정하고 등록합니다. 새 책은 &lsquo;확인 필요&rsquo; 표시가 붙습니다.</li>
       </ol>
+      <ShelfPhotoGuide />
       {!isClaudeConfigured() ? (
         <p className="card text-sm text-amber-900">
           서버에 <code>ANTHROPIC_API_KEY</code>가 설정되지 않아 사진 판독을 쓸 수 없습니다. <Link href="/add" className="underline">한 권씩 등록</Link>은 그대로

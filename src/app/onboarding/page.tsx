@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import ActionForm from '@/components/ActionForm'
+import { Illustration, Photo } from '@/components/Art'
 import { PublicHeader, SiteFooter } from '@/components/SiteChrome'
 import { prisma } from '@/lib/db'
 import { createHouseholdAction } from '@/server/actions/household'
@@ -21,27 +22,30 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
   return (
     <div className="flex min-h-dvh flex-col">
       <PublicHeader />
-      <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-4 py-10">
+      <main className="wrap flex-1 py-10 md:py-14">
+        <div className="mx-auto grid max-w-[1000px] gap-10 md:grid-cols-[1fr_320px]">
+        <div className="space-y-6">
         <div>
           <p className="text-sm text-muted">{user.email}</p>
           <h1 className="text-2xl font-bold">{memberships > 0 ? '새 서재 만들기' : `${user.name}님, 환영합니다`}</h1>
           <p className="mt-1 text-muted">우리 집 책장을 하나의 서재로 만들고, 가족을 초대해 함께 쓰세요.</p>
         </div>
 
-        <section className="card space-y-3">
-          <h2 className="font-semibold">새 서재 만들기</h2>
+        <section className="card space-y-3 p-6">
+          <Illustration name="createLibrary" width={180} />
+          <h2 className="text-lg font-semibold">새 서재 만들기</h2>
           <p className="text-sm text-muted">
             만든 사람이 서재의 <b>소유자</b>가 됩니다. 기본 구역(고전·소설·어린이 등)과 예시 공간(거실·서재·아이방)이 함께 만들어지고, 설정에서
             언제든 바꿀 수 있습니다.
           </p>
           <ActionForm action={createHouseholdAction} className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="label">서재 이름</label>
-              <input name="name" defaultValue={`${user.name}네 서재`} className="input" required maxLength={40} />
+              <label htmlFor="hh-name" className="label">서재 이름</label>
+              <input id="hh-name" name="name" defaultValue={`${user.name}네 서재`} className="input" required maxLength={40} />
             </div>
             <div>
-              <label className="label">서재에서 쓸 내 이름(호칭)</label>
-              <input name="ownerName" defaultValue={user.name} placeholder="예: 아빠" className="input" required maxLength={20} />
+              <label htmlFor="hh-owner" className="label">서재에서 쓸 내 이름(호칭)</label>
+              <input id="hh-owner" name="ownerName" defaultValue={user.name} placeholder="예: 아빠" className="input" required maxLength={20} />
             </div>
             <div className="sm:col-span-2">
               <button className="btn-primary">서재 만들기</button>
@@ -62,8 +66,13 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
         </section>
 
         <form action="/api/auth/logout" method="post" className="text-center">
-          <button className="text-sm text-muted underline">다른 계정으로 로그인</button>
+          <button className="min-h-11 text-sm text-muted underline">다른 계정으로 로그인</button>
         </form>
+        </div>
+        <aside className="hidden md:block">
+          <Photo name="auth" decorative sizes="320px" className="aspect-[4/5] rounded-[24px] object-cover" />
+        </aside>
+        </div>
       </main>
       <SiteFooter />
     </div>

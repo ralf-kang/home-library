@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { safeNext } from '@/lib/google-oidc'
 import { finishLogin, isDevLoginEnabled, upsertUser } from '@/server/login'
+import { requestOrigin, siteUrl } from '@/lib/request-origin'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,8 +15,8 @@ export async function POST(req: NextRequest) {
   const email = String(form.get('email') ?? '').trim().toLowerCase()
   const name = String(form.get('name') ?? '').trim()
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.redirect(new URL('/login?error=' + encodeURIComponent('이메일 형식이 올바르지 않습니다.'), req.url), 303)
+    return NextResponse.redirect(siteUrl(req, '/login?error=' + encodeURIComponent('이메일 형식이 올바르지 않습니다.')), 303)
   }
   const user = await upsertUser({ sub: `dev:${email}`, email, name: name || email.split('@')[0], picture: null })
-  return finishLogin(user.id, safeNext(String(form.get('next') ?? '')), req.url)
+  return finishLogin(user.id, safeNext(String(form.get('next') ?? '')), requestOrigin(req))
 }

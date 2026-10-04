@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
+import { EmptyState } from '@/components/Art'
 import BookCover from '@/components/BookCover'
 import FamilyInfo from '@/components/FamilyInfo'
 import SponsorBanner from '@/components/SponsorBanner'
@@ -134,6 +135,16 @@ async function FamilyView({
             ))}
           </ol>
         </section>
+      )}
+
+      {bookCount === 0 && (
+        <EmptyState
+          art="shelvesEmpty"
+          title="아직 등록된 책이 없어요"
+          action={can(me.role, 'book.write') ? { href: '/add', label: '첫 책 등록하기' } : undefined}
+        >
+          바코드·제목 검색으로 한 권씩, 또는 책장 한 칸을 사진으로 찍어 여러 권을 한 번에 등록할 수 있습니다.
+        </EmptyState>
       )}
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">

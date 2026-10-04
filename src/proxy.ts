@@ -5,6 +5,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { verifySession, SESSION_COOKIE } from '@/lib/session'
+import { siteUrl } from '@/lib/request-origin'
 
 const PUBLIC_EXACT = new Set(['/', '/about', '/terms', '/privacy', '/pricing', '/login'])
 const PUBLIC_PREFIX = ['/invite/', '/api/auth/', '/api/health']
@@ -18,13 +19,13 @@ export async function proxy(req: NextRequest) {
   const token = req.cookies.get(SESSION_COOKIE)?.value
   const session = token ? await verifySession(token) : null
 
-  if (pathname === '/login' && session) return NextResponse.redirect(new URL('/dashboard', req.url))
+  if (pathname === '/login' && session) return NextResponse.redirect(siteUrl(req, '/dashboard'))
   if (session || isPublic(pathname)) return NextResponse.next()
 
   if (pathname.startsWith('/api/')) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
-  const login = new URL('/login', req.url)
+  const login = siteUrl(req, '/login')
   login.searchParams.set('next', pathname + search)
   return NextResponse.redirect(login)
 }

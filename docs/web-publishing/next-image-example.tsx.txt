@@ -1,0 +1,20 @@
+// Copy this example to a component when implementing the publishing design.
+// Source files in src/img are NOT served at /src/img; use static imports.
+import Image from 'next/image'
+import hero from '@/img/photos/landing-hero-family-reading-1536.webp'
+
+export function FamilyHeroVisual() {
+  return (
+    <Image
+      src={hero}
+      alt="햇살이 드는 거실에서 함께 책을 읽는 가족"
+      sizes="(max-width: 767px) calc(100vw - 32px), (max-width: 1199px) 46vw, 520px"
+      preload
+      style={{ width: '100%', height: 'auto', borderRadius: 24 }}
+    />
+  )
+}
+
+// Below-the-fold photos: omit preload and use loading="lazy".
+// Keep intrinsic 3:2 dimensions for the family photo; avoid cropping faces.
+// src/app/page.tsx: replace <ShelfIllustration /> with <FamilyHeroVisual />.

@@ -1,0 +1,20 @@
+[
+  {
+    "key": "landing-hero-family-reading",
+    "prompt": "Use case: photorealistic-natural. Asset type: premium Korean family home-library website hero, standalone photo, landscape 3:2. Primary request: candid editorial photograph of a Korean parent and elementary school age child quietly reading one open picture book together on a comfortable oatmeal linen sofa, another parent sitting nearby reading. Contemporary modest Korean apartment, low oak bookcase filled with unbranded books behind them, soft daylight through sheer curtains, small green plant. Color palette ivory #faf8f3, forest green #2f5d50 cushions, warm oak, restrained terracotta. Art direction sophisticated architectural lifestyle magazine, natural expressions, authentic human anatomy and fingers, subtle film grain, soft shadows, warm but neutral white balance, premium believable photography. Compose the people and shared open book centrally so center crop to 4:5 preserves them; leave generous air around the subjects, no objects cut at edges. This is an image for right column alongside live HTML text, no lettering or UI overlay anywhere. No logos, watermarks, visible book titles, famous book covers, advertising copy, fantasy, illustration or excessive clutter.",
+    "tool": "image_gen.imagegen (built-in)",
+    "sourceFile": "C:\\Users\\ralfk\\.codex\\generated_images\\01a10471-c9e0-74d1-839e-11fccc9e542d\\exec-5b5ff737-1d5a-4c86-8831-12bc65946be0.png"
+  },
+  {
+    "key": "auth-reading-nook",
+    "prompt": "Use case: photorealistic-natural. Asset type: premium family home-library login and onboarding editorial photograph, portrait 4:5. Primary request: calm sunlit reading corner in a modern Korean apartment, low natural oak shelving neatly arranged with anonymous cloth bound books, forest green upholstered armchair, open book resting on an ivory linen ottoman, small ceramic cup and a single plant, sheer curtain light from left. Quiet lived-in warmth, restrained architecture magazine photography, true wood grain, paper and linen texture. Color palette warm ivory #faf8f3, deep green #2f5d50, sage, warm oak, very subtle terracotta. Elegant balanced composition, generous whitespace top third; real objects with sound perspective. No people, no words, no logos, no readable book titles, no watermark, no overlay UI. High production quality.",
+    "tool": "image_gen.imagegen (built-in)",
+    "sourceFile": "C:\\Users\\ralfk\\.codex\\generated_images\\01a10471-c9e0-74d1-839e-11fccc9e542d\\exec-5fc4f589-875f-4edb-ab94-0ebf72f3a74f.png"
+  },
+  {
+    "key": "neighborhood-book-sharing",
+    "prompt": "Use case: photorealistic-natural. Asset type: premium Korean family library neighborhood book-sharing section editorial photo, landscape 3:2. Primary request: two adult Korean neighbors seen from shoulders to hips naturally passing a small stack of two unbranded clothbound books between them in a bright shared apartment courtyard, a bench and softly defocused green plants in background. Show two natural pairs of hands and physically believable supported books, candid warm interaction, sleeves in forest green and warm ivory, tasteful soft daylight, real skin and paper texture, subtle film grain, authentic high-end lifestyle photography. Subject books and hands central within middle 60 percent to allow responsive crop. Brand palette #2f5d50 forest green, #faf8f3 cream, muted terracotta and oak. No text, no title lettering, no branding, no watermarks, no UI, no elaborate luxury architecture. Focus on book lending, not a commercial sale.",
+    "tool": "image_gen.imagegen (built-in)",
+    "sourceFile": "C:\\Users\\ralfk\\.codex\\generated_images\\01a10471-c9e0-74d1-839e-11fccc9e542d\\exec-ff3b0032-a171-48ec-b212-dc0d0f25644e.png"
+  }
+]

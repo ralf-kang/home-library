@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { SESSION_COOKIE } from '@/lib/session'
+import { siteUrl } from '@/lib/request-origin'
 
 export const dynamic = 'force-dynamic'
 
 function logout(req: NextRequest) {
-  const res = NextResponse.redirect(new URL('/', req.url), 303)
+  const res = NextResponse.redirect(siteUrl(req, '/'), 303)
   res.cookies.delete({ name: SESSION_COOKIE, path: '/' })
   return res
 }

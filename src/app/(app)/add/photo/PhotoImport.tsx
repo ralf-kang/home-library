@@ -1,5 +1,6 @@
 'use client'
 
+import { SaveSuccess } from '@/components/Motion'
 import { useActionState, useState } from 'react'
 import { importFromPhoto } from '@/server/actions/import'
 
@@ -147,7 +148,7 @@ export default function PhotoImport({
               </li>
             ))}
           </ul>
-          {state && <p className={`text-sm ${state.ok ? 'text-brand' : 'text-red-700'}`}>{state.ok ? state.message : state.error}</p>}
+          {state && (state.ok ? <SaveSuccess message={state.message ?? '등록했습니다.'} /> : <p role="alert" className="text-sm text-red-700">{state.error}</p>)}
           <button className="btn-primary" disabled={pending}>
             {pending ? '등록 중…(책마다 서지를 찾습니다)' : '고른 책 등록'}
           </button>

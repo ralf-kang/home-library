@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { CopyStatus, ReadingStatus } from '@prisma/client'
 import ActionForm from '@/components/ActionForm'
+import { EmptyState } from '@/components/Art'
 import BookCover from '@/components/BookCover'
 import { prisma } from '@/lib/db'
 import { COPY_STATUS_LABEL, LOCATION_KIND_LABEL, READING_STATUS_LABEL, formatCopyCode } from '@/lib/format'
@@ -125,15 +126,20 @@ export default async function ShelvesPage({ searchParams }: { searchParams: Prom
           </div>
         </div>
 
-        {copies.length === 0 ? (
-          <div className="card text-center text-sm text-muted">
-            이 위치에 꽂힌 책이 없습니다.
-            {canWrite && (
-              <div className="mt-3">
-                <Link href="/add" className="btn-primary">책 등록하기</Link>
-              </div>
-            )}
-          </div>
+        {loc.locations.length === 0 ? (
+          <EmptyState
+            art="shelvesEmpty"
+            title="서가 위치를 먼저 만들어 주세요"
+            action={can(me.role, 'location.manage') ? { href: '/settings#locations', label: '공간·책장·칸 만들기' } : undefined}
+          >
+            거실·서재·아이방 같은 공간과 책장, 칸을 정해 두면 책마다 꽂힌 자리를 기록할 수 있습니다.
+          </EmptyState>
+        ) : copies.length === 0 ? (
+          <EmptyState
+            art="shelvesEmpty"
+            title={allCount === 0 ? '아직 등록된 책이 없어요' : '이 위치에 꽂힌 책이 없어요'}
+            action={canWrite ? { href: current?.kind === 'SHELF' ? `/add/photo?loc=${current.id}` : '/add', label: allCount === 0 ? '첫 책 등록하기' : '책 등록하기' } : undefined}
+          />
         ) : (
           <ActionForm action={moveCopies} className="space-y-5">
             {shelves.map(([locationId, items]) => {
@@ -149,7 +155,7 @@ export default async function ShelvesPage({ searchParams }: { searchParams: Prom
                     <span className="ml-auto text-xs text-muted">{items.length}권</span>
                   </div>
                   {/* 선반: 표지를 바닥선 위에 세운다 */}
-                  <ul className="grid grid-cols-3 gap-x-3 gap-y-4 rounded-b-lg border-b-8 border-[#c9b79c] bg-gradient-to-b from-transparent to-[#efe7da] px-2 pt-2 pb-3 sm:grid-cols-5 lg:grid-cols-7">
+                  <ul className="grid grid-cols-2 gap-x-3 gap-y-4 rounded-b-lg border-b-8 border-[#c9b79c] bg-gradient-to-b from-transparent to-[#efe7da] px-2 pt-2 pb-3 min-[480px]:grid-cols-3 sm:grid-cols-4 lg:grid-cols-6">
                     {items.map((c) => (
                       <CoverTile
                         key={c.id}
@@ -223,9 +229,13 @@ function CoverTile({
   return (
     <li className="group min-w-0" title={`${title} · ${formatCopyCode(c.seq)}${c.owner ? ` · ${c.owner.name}` : ''}`}>
       {selecting ? (
-        <label className="block cursor-pointer">
+        <label className="group/pick block cursor-pointer">
           <input type="checkbox" name="copyId" value={c.id} className="peer sr-only" />
-          <div className="rounded ring-brand ring-offset-2 peer-checked:ring-4">{inner}</div>
+          <div className="relative rounded-md ring-brand ring-offset-2 peer-checked:ring-4 peer-focus-visible:outline-3 peer-focus-visible:outline-accent">
+            {inner}
+            {/* 선택 상태는 색만이 아니라 체크 표시로도 알린다 */}
+            <span aria-hidden className="absolute top-1 right-1 hidden h-6 w-6 items-center group-has-[:checked]/pick:flex justify-center rounded-full bg-brand text-sm font-bold text-white shadow">✓</span>
+          </div>
         </label>
       ) : (
         <Link href={`/books/${c.bookId}`} className="block">
@@ -261,7 +271,7 @@ function Tree({
               {n.zone && <span className="mr-1 inline-block h-2 w-2 rounded-full" style={{ background: n.zone.color }} />}
               <span className="font-mono text-xs text-muted">{n.code}</span> {n.name}
             </span>
-            <span className="text-xs text-muted">{total(n.id)}</span>
+            <span className="shrink-0 text-xs text-muted tabular-nums">{total(n.id)}</span>
           </Link>
           <Tree parentId={n.id} loc={loc} selected={selected} total={total} />
         </li>

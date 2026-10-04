@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import ActionForm from '@/components/ActionForm'
+import { EmptyState, Photo } from '@/components/Art'
 import BookCover from '@/components/BookCover'
 import ConfirmButton from '@/components/ConfirmButton'
 import NearbyLibraries from '@/components/NearbyLibraries'
@@ -60,6 +61,7 @@ export default async function NeighborhoodPage({
           같은 동네 가족들이 서로의 책을 빌려 읽는 공유 서가입니다. 이웃에게는 &lsquo;대여 가능&rsquo;으로 둔 책의 표지·제목·서재 이름만 보이고, 위치·읽기
           기록·독후감은 보이지 않습니다.
         </p>
+        <Photo name="neighbors" sizes="(max-width: 767px) calc(100vw - 32px), 480px" className="aspect-[3/2] max-w-[480px] rounded-[20px]" />
         <section className="card space-y-3">
           <h2 className="font-semibold">동네 만들기</h2>
           <ActionForm action={createNeighborhood} className="grid gap-2 sm:grid-cols-2">
@@ -157,11 +159,15 @@ export default async function NeighborhoodPage({
           <button className="btn-primary shrink-0">찾기</button>
         </form>
         {shelf.copies.length === 0 ? (
-          <p className="card text-sm text-muted">
-            {q ? '찾는 책이 없습니다.' : '아직 공유된 책이 없습니다. 서재마다 책 상세 화면의 ‘대여 가능’이 켜진 책만 여기에 보입니다.'}
-          </p>
+          q ? (
+            <EmptyState art="searchEmpty" title="이웃 서가에서 찾는 책이 없어요" action={{ href: `/neighborhood?n=${selectedId}`, label: '전체 보기' }} />
+          ) : (
+            <p className="card text-sm text-muted">
+              아직 공유된 책이 없습니다. 서재마다 책 상세 화면의 &lsquo;대여 가능&rsquo;이 켜진 책만 여기에 보입니다.
+            </p>
+          )
         ) : (
-          <ul className="grid grid-cols-3 gap-x-3 gap-y-5 sm:grid-cols-5 lg:grid-cols-7">
+          <ul className="grid grid-cols-2 gap-x-3 gap-y-5 min-[480px]:grid-cols-3 sm:grid-cols-4 lg:grid-cols-6">
             {shelf.copies.map((c) => {
               const own = c.book.householdId === household?.id
               const title = `${c.book.title}${c.book.volumeNo != null ? ` ${c.book.volumeNo}권` : ''}`

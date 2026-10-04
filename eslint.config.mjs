@@ -13,6 +13,8 @@ const eslintConfig = defineConfig([
     // Dockerfile/deploy 빌드가 만드는 seed 컴파일 결과물(.gitignore 대상)
     "prisma/dist/**",
     "prisma/dist-demo/**",
+    // 웹 퍼블리싱 에셋 제작·검증 스크립트(앱 코드 아님)
+    "docs/**",
   ]),
 ]);
 

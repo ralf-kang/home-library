@@ -49,7 +49,12 @@ export default function ContentSearch({ q, auto }: { q: string; auto: boolean })
         )}
       </div>
       {s.status === 'loading' && <p className="text-sm text-muted">찾는 중…</p>}
-      {s.status === 'error' && <p className="text-sm text-red-700">{s.error}</p>}
+      {s.status === 'error' && (
+        <p role="alert" className="text-sm text-red-700">
+          내용 검색을 마치지 못했습니다({s.error}). 결과가 없다는 뜻은 아니니 &lsquo;다시 찾기&rsquo;를 눌러 주세요.
+        </p>
+      )}
+      {s.status === 'loading' && <span className="sr-only" aria-live="polite">내용으로 찾는 중</span>}
       {s.status === 'done' &&
         (s.items.length === 0 ? (
           <p className="text-sm text-muted">

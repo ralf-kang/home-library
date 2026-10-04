@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { AgeGroup, ReadingStatus } from '@prisma/client'
+import { EmptyState } from '@/components/Art'
 import BookCover from '@/components/BookCover'
 import ContentSearch from '@/components/ContentSearch'
 import { isChosungQuery } from '@/lib/chosung'
@@ -38,7 +39,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   return (
     <div className="space-y-4">
       {sp.deleted && <p className="rounded-lg bg-brand-soft p-3 text-sm text-brand">책을 지웠습니다.</p>}
-      <form className="space-y-2" action="/search">
+      <h1 className="sr-only">책 검색</h1>
+      <form className="space-y-2" action="/search" role="search">
         <div className="flex gap-2">
           <input
             name="q"
@@ -117,16 +119,13 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       )}
 
       {result.books.length === 0 ? (
-        <div className="card text-center text-sm text-muted">
-          {hasFilter ? '조건에 맞는 책이 없습니다.' : '아직 등록된 책이 없습니다.'}
-          {canWrite && (
-            <div className="mt-3">
-              <Link href="/add" className="btn-primary">
-                책 등록하기
-              </Link>
-            </div>
-          )}
-        </div>
+        hasFilter ? (
+          <EmptyState art="searchEmpty" title="조건에 맞는 책이 없어요" action={{ href: '/search', label: '조건 초기화' }}>
+            검색어를 줄이거나 필터를 풀어 보세요. 초성(ㅅㅍㅇㅅ)이나 ISBN으로도 찾을 수 있습니다.
+          </EmptyState>
+        ) : (
+          <EmptyState art="shelvesEmpty" title="아직 등록된 책이 없어요" action={canWrite ? { href: '/add', label: '첫 책 등록하기' } : undefined} />
+        )
       ) : (
         <ul className="grid gap-2 sm:grid-cols-2">
           {result.books.map((book) => {

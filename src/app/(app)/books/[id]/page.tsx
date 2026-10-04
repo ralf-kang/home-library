@@ -5,6 +5,7 @@ import ActionForm from '@/components/ActionForm'
 import BookCover from '@/components/BookCover'
 import ConfirmButton from '@/components/ConfirmButton'
 import LibraryHoldings from '@/components/LibraryHoldings'
+import { SaveSuccess } from '@/components/Motion'
 import {
   COPY_STATUS_LABEL,
   NOTE_KIND_LABEL,
@@ -51,7 +52,8 @@ export default async function BookPage({
 
   return (
     <div className="space-y-5">
-      {added && <p className="rounded-lg bg-brand-soft p-3 text-sm text-brand">등록했습니다.</p>}
+      {/* ?added=1 은 등록 액션이 저장에 성공한 뒤에만 붙는다 → 완료 모션 */}
+      {added && <SaveSuccess message={`『${book.title}』을(를) 서재에 등록했어요.`} />}
 
       <section className="flex flex-col gap-4 sm:flex-row">
         <div className="flex justify-center">

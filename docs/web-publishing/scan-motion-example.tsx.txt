@@ -1,0 +1,36 @@
+'use client'
+
+import { useState } from 'react'
+import Image from 'next/image'
+import poster from '@/img/motion/add-photo-scan-poster.svg'
+import motion from '@/img/motion/add-photo-scan-once.svg'
+
+// User-triggered finite playback; SVG itself also respects reduced motion.
+export function ShelfPhotoGuide() {
+  const [playing, setPlaying] = useState(false)
+  const [message, setMessage] = useState('책장 한 칸의 책등을 정면에서 찍어 주세요.')
+  function play() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setPlaying(false)
+      setMessage('동작 줄이기 설정에 따라 정지 안내를 표시합니다. 책등이 모두 보이게 한 칸씩 촬영해 주세요.')
+      return
+    }
+    setPlaying(true)
+    setMessage('촬영 안내를 표시합니다. 판독 후에는 책 목록을 직접 확인하고 수정해 주세요.')
+  }
+  return (
+    <figure>
+      <Image
+        key={playing ? 'motion' : 'poster'}
+        src={playing ? motion : poster}
+        alt="책장 한 칸의 책등을 정면에서 촬영하는 안내"
+        width={480} height={320} unoptimized
+        style={{ width: '100%', maxWidth: 480, height: 'auto' }}
+      />
+      <figcaption aria-live="polite">{message}</figcaption>
+      <button type="button" onClick={playing ? () => setPlaying(false) : play}>
+        {playing ? '정지 그림으로 전환' : '촬영 안내 보기'}
+      </button>
+    </figure>
+  )
+}

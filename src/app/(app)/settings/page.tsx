@@ -1,4 +1,5 @@
 import ActionForm from '@/components/ActionForm'
+import { Illustration } from '@/components/Art'
 import ConfirmButton from '@/components/ConfirmButton'
 import { prisma } from '@/lib/db'
 import { LOCATION_KIND_LABEL, formatDate } from '@/lib/format'
@@ -121,7 +122,10 @@ export default async function SettingsPage() {
       </section>
 
       <section className="card space-y-3" id="invite">
-        <h2 className="font-semibold">가족 초대</h2>
+        <div className="flex items-center gap-4">
+          <Illustration name="inviteCircle" width={120} className="hidden shrink-0 sm:block" />
+          <h2 className="font-semibold">가족 초대</h2>
+        </div>
         <p className="text-xs text-muted">
           링크를 받은 가족이 구글 계정으로 로그인하면 바로 이 서재에 들어옵니다(회원가입 없음). 동네 이웃은{' '}
           <a href="/neighborhood" className="underline">동네</a> 화면에서 따로 초대합니다 — 이웃은 대여 가능한 책만 볼 수 있습니다.

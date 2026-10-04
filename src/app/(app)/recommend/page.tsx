@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { WishStatus } from '@prisma/client'
 import ActionForm from '@/components/ActionForm'
+import { Illustration } from '@/components/Art'
 import BookCover from '@/components/BookCover'
 import ConfirmButton from '@/components/ConfirmButton'
 import PurchaseLinks from '@/components/PurchaseLinks'
@@ -84,6 +85,14 @@ export default async function RecommendPage() {
             {!isKakaoConfigured() && '카카오 API 키가 없어 ‘좋아한 저자의 다른 책’ 후보를 찾지 못합니다. '}
             {!isClaudeConfigured() && 'Claude API 키가 없어 AI 선정 없이 규칙 순서로 보여 줍니다.'}
           </p>
+        )}
+        {!run && profile.doneCount === 0 && (
+          <div className="flex items-center gap-4 rounded-xl bg-paper p-3">
+            <Illustration name="journalEmpty" width={120} className="shrink-0" />
+            <p className="text-sm text-muted">
+              완독·별점 기록이 쌓이면 취향에 맞춘 추천 근거가 생깁니다. 지금 갱신하면 도서관 대출 데이터와 시리즈 빈 권 위주로 찾습니다.
+            </p>
+          </div>
         )}
         <ul className="space-y-2">
           {items.map((it, i) => {

@@ -1,4 +1,5 @@
 import ActionForm from '@/components/ActionForm'
+import { Illustration } from '@/components/Art'
 import { GoogleSignInButton, PublicHeader, SiteFooter } from '@/components/SiteChrome'
 import { prisma } from '@/lib/db'
 import { formatDate } from '@/lib/format'
@@ -37,6 +38,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
     <div className="flex min-h-dvh flex-col">
       <PublicHeader />
       <main className="mx-auto w-full max-w-lg flex-1 space-y-4 px-4 py-10">
+        {inv && !problem && <Illustration name="inviteCircle" width={240} className="mx-auto" />}
         {inv && (
           <div className="text-center">
             <p className="text-sm text-muted">{inv.createdBy.name}님이 초대했습니다</p>
@@ -73,7 +75,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
           </section>
         )}
 
-        {problem && <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">{problem}</p>}
+        {problem && <p role="alert" className="rounded-[10px] bg-amber-50 p-3 text-sm text-amber-900">{problem}</p>}
 
         {!blocking && inv && !user && (
           <section className="card space-y-3">

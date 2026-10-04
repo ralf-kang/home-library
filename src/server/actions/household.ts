@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 import type { HouseholdRole } from '@prisma/client'
 import { prisma } from '@/lib/db'
 import { appUrl } from '@/lib/google-oidc'
+import { lookupRegionCode } from '@/lib/public-data'
 import { INVITE_MAX_USES_LIMIT, INVITE_TTL_DAYS, inviteProblem, uniqueName } from '@/lib/invite'
 import { ROLE_RANK, assignableRoles } from '@/lib/permissions'
 import { requireCan, requireMember, requireUser } from '@/server/auth'
@@ -44,10 +45,10 @@ export async function updateHousehold(_prev: ActionResult | null, form: FormData
   const { household } = await requireCan('household.manage')
   const name = s(form, 'name')
   if (!name) return { ok: false, error: '서재 이름을 입력해 주세요.' }
-  await prisma.household.update({
-    where: { id: household.id },
-    data: { name, regionName: s(form, 'regionName'), regionCode: s(form, 'regionCode') },
-  })
+  const regionName = s(form, 'regionName')
+  // 지역이 바뀌면 법정동 코드를 다시 찾는다(공공데이터 키가 없으면 null — 지역명만으로도 위젯은 동작)
+  const regionCode = regionName && regionName !== household.regionName ? await lookupRegionCode(regionName) : regionName ? household.regionCode : null
+  await prisma.household.update({ where: { id: household.id }, data: { name, regionName, regionCode } })
   revalidatePath('/settings')
   revalidatePath('/dashboard')
   return { ok: true, message: '서재 정보를 저장했습니다.' }

@@ -89,6 +89,43 @@ export interface PickInput {
   limit: number
 }
 
+const ContentMatchSchema = z.object({
+  matches: z.array(
+    z.object({
+      index: z.number().int().describe('서재 목록의 번호'),
+      reason: z.string().describe('이 책이 질문 내용과 관련된 이유, 한국어 한 문장(50자 이내)'),
+    }),
+  ),
+})
+
+/**
+ * "책 내용으로 찾기" 보조 단계(Google Books 로 못 찾았을 때). 서재 목록 안에서만 번호로 고르게 해
+ * 없는 책을 지어내지 못하게 한다. 책 내용에 대한 모델의 지식으로 판단하므로 확신이 없으면 고르지 않게 한다.
+ */
+export async function matchByContent(
+  query: string,
+  books: { title: string; authors: string }[],
+  limit = 10,
+): Promise<{ index: number; reason: string }[]> {
+  const list = books.map((b, i) => `${i}. ${b.title}${b.authors ? ` — ${b.authors}` : ''}`).join('\n')
+  const res = await getClient().beta.messages.parse({
+    model: MODEL,
+    max_tokens: 4000,
+    betas: [FALLBACK_BETA],
+    fallbacks: 'default',
+    output_config: { effort: 'low', format: betaZodOutputFormat(ContentMatchSchema) },
+    system:
+      '당신은 가족 서재의 사서입니다. 사용자가 책의 "내용"으로 묻습니다. 아래 서재 목록 안에서만, 그 내용을 실제로 다루는 책을 고르세요. ' +
+      '책 내용을 잘 모르거나 관련이 약하면 고르지 마세요. 아무것도 없으면 빈 목록으로 답하세요.',
+    messages: [{ role: 'user', content: `질문: ${query}\n\n서재 목록:\n${list}\n\n관련 있는 책을 최대 ${limit}권까지 고르세요.` }],
+  })
+  if (res.stop_reason === 'refusal' || !res.parsed_output) return []
+  const seen = new Set<number>()
+  return res.parsed_output.matches
+    .filter((m) => m.index >= 0 && m.index < books.length && !seen.has(m.index) && seen.add(m.index))
+    .slice(0, limit)
+}
+
 /** 후보 중에서 최대 limit권을 골라 이유를 붙인다. 후보에 없는 책은 고를 수 없다(index로만 응답). */
 export async function pickRecommendations(input: PickInput): Promise<{ index: number; reason: string }[]> {
   const list = input.candidates

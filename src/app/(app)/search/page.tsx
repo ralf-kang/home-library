@@ -1,7 +1,10 @@
 import Link from 'next/link'
 import type { AgeGroup, ReadingStatus } from '@prisma/client'
 import BookCover from '@/components/BookCover'
+import ContentSearch from '@/components/ContentSearch'
+import { isChosungQuery } from '@/lib/chosung'
 import { READING_STATUS_LABEL } from '@/lib/format'
+import { normalizeIsbn } from '@/lib/isbn'
 import { can } from '@/lib/permissions'
 import { requireMember } from '@/server/auth'
 import { listCategories, listMembers, loadLocations, searchBooks, type SearchParams } from '@/server/queries'
@@ -107,6 +110,11 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           </Link>
         )}
       </div>
+
+      {/* 내용 검색: 제목·저자·메모로 3권 미만이면 자동 실행, 아니면 버튼(ISBN·초성 질의는 제외) */}
+      {params.q && !normalizeIsbn(params.q) && !isChosungQuery(params.q) && (
+        <ContentSearch q={params.q} auto={result.page === 1 && result.total < 3} />
+      )}
 
       {result.books.length === 0 ? (
         <div className="card text-center text-sm text-muted">

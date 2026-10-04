@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
 import BookCover from '@/components/BookCover'
 import FamilyInfo from '@/components/FamilyInfo'
@@ -54,7 +55,9 @@ export default async function DashboardPage({
 
       {target ? <MemberView hid={hid} member={target} /> : <FamilyView hid={hid} me={me} members={members} />}
 
-      <FamilyInfo household={household} />
+      <Suspense fallback={<p className="text-xs text-muted">우리 동네 정보를 불러오는 중…</p>}>
+        <FamilyInfo household={household} />
+      </Suspense>
       <SponsorBanner neighborhoodId={household.neighborhoodId} />
     </div>
   )

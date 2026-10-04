@@ -3,6 +3,7 @@ import type { WishStatus } from '@prisma/client'
 import ActionForm from '@/components/ActionForm'
 import BookCover from '@/components/BookCover'
 import ConfirmButton from '@/components/ConfirmButton'
+import PurchaseLinks from '@/components/PurchaseLinks'
 import { prisma } from '@/lib/db'
 import { WISH_STATUS_LABEL, formatDate } from '@/lib/format'
 import { isClaudeConfigured } from '@/lib/claude'
@@ -95,6 +96,11 @@ export default async function RecommendPage() {
                   <p className="text-xs text-muted">{[it.authors, it.publisher].filter(Boolean).join(' · ')}</p>
                   <p className="mt-1">{it.reason}</p>
                   <span className="chip mt-1 bg-paper text-muted ring-1 ring-line">{SOURCE_LABEL[it.source]}</span>
+                  {it.source !== 'series' && (
+                    <div className="mt-1">
+                      <PurchaseLinks book={it} />
+                    </div>
+                  )}
                 </div>
                 <div className="flex shrink-0 flex-col gap-1">
                   {wished.has(key) ? (
@@ -130,6 +136,7 @@ export default async function RecommendPage() {
                   {[w.authors, w.source === 'RECOMMEND' ? '추천에서 담음' : null].filter(Boolean).join(' · ')}
                 </p>
                 {w.reason && <p className="text-xs">{w.reason}</p>}
+                {w.status !== 'PURCHASED' && w.status !== 'DISMISSED' && <PurchaseLinks book={w} />}
               </div>
               <span className="chip bg-brand-soft text-brand">{WISH_STATUS_LABEL[w.status]}</span>
               {w.status !== 'PURCHASED' && (

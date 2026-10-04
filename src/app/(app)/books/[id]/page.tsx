@@ -1,9 +1,10 @@
-import { Fragment } from 'react'
+import { Fragment, Suspense } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import ActionForm from '@/components/ActionForm'
 import BookCover from '@/components/BookCover'
 import ConfirmButton from '@/components/ConfirmButton'
+import LibraryHoldings from '@/components/LibraryHoldings'
 import {
   COPY_STATUS_LABEL,
   NOTE_KIND_LABEL,
@@ -100,6 +101,10 @@ export default async function BookPage({
           )}
         </div>
       </section>
+
+      <Suspense fallback={null}>
+        <LibraryHoldings isbn13={book.isbn13} regionName={household.regionName} />
+      </Suspense>
 
       <section className="card space-y-3">
         <h2 className="font-semibold">소장본 {book.copies.length}권</h2>

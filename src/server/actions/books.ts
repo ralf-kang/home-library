@@ -77,7 +77,9 @@ export async function createBook(_prev: ActionResult | null, form: FormData): Pr
       const existing = fields.isbn13
         ? await tx.book.findUnique({ where: { householdId_isbn13: { householdId: hid, isbn13: fields.isbn13 } } })
         : null
-      const book = existing ?? (await tx.book.create({ data: { ...fields, householdId: hid, seriesId } }))
+      // needsReview: 사진 판독처럼 사람이 아직 확인하지 않은 등록이면 '확인 필요'로 표시
+      const book =
+        existing ?? (await tx.book.create({ data: { ...fields, householdId: hid, seriesId, needsReview: b(form, 'needsReview') } }))
       for (let i = 0; i < copies; i++) {
         const copy = await tx.copy.create({ data: { bookId: book.id, locationId, ownerId, lendable } })
         if (locationId) {

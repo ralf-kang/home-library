@@ -1,4 +1,5 @@
 import ActionForm from '@/components/ActionForm'
+import Link from 'next/link'
 import { Illustration } from '@/components/Art'
 import ConfirmButton from '@/components/ConfirmButton'
 import { prisma } from '@/lib/db'
@@ -38,6 +39,10 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-bold">서재 설정</h1>
+      <section className="card flex flex-wrap items-center justify-between gap-3">
+        <div><h2 className="font-semibold">나의 서재 꾸미기</h2><p className="text-sm text-muted">내 계정에서 보이는 테마·대표 이미지·선반을 선택합니다.</p></div>
+        <Link href="/customize" className="btn-ghost">꾸미기 열기</Link>
+      </section>
 
       <section className="card space-y-3" id="household">
         <h2 className="font-semibold">서재 정보</h2>

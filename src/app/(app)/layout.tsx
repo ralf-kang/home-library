@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db'
 import { ROLE_LABEL, can } from '@/lib/permissions'
 import { currentMembership, isPlatformAdmin } from '@/server/auth'
 import { switchHousehold } from '@/server/actions/household'
+import { appearanceStyle, readLibraryAppearance } from '@/lib/library-appearance'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,8 +20,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     orderBy: { createdAt: 'asc' },
   })
   const canWrite = member ? can(member.role, 'book.write') : false
+  const appearance = readLibraryAppearance(member?.libraryAppearance)
   return (
-    <div className="min-h-dvh pb-20 sm:pb-8">
+    <div className="library-surface min-h-dvh bg-paper pb-20 text-ink sm:pb-8" style={appearanceStyle(appearance)} data-density={appearance.density} data-titles={appearance.showTitles}>
       <header className="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
           <Link href={household ? '/dashboard' : '/neighborhood'} className="flex min-w-0 items-center gap-2 font-bold">
@@ -59,6 +61,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 </div>
               )}
               <div className="border-t border-line pt-1">
+                {member && <Link href="/customize" className="block rounded px-2 py-1.5 hover:bg-paper">나의 서재 꾸미기</Link>}
                 {member && can(member.role, 'family.invite') && (
                   <Link href="/settings" className="block rounded px-2 py-1.5 hover:bg-paper">서재 설정·가족 초대</Link>
                 )}

@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-05",
+  "database": "hl_appearance_check_697f69230f",
+  "checks": [
+    {
+      "name": "Prisma schema + repeatable additive SQL",
+      "ok": true
+    },
+    {
+      "name": "3 PostgreSQL persistence/isolation/reset integration tests",
+      "ok": true
+    },
+    {
+      "name": "Anonymous customize redirects to login",
+      "ok": true
+    },
+    {
+      "name": "SSR personalized /customize",
+      "ok": true,
+      "status": 200
+    },
+    {
+      "name": "SSR personalized /shelves",
+      "ok": true,
+      "status": 200
+    },
+    {
+      "name": "SSR personalized /dashboard",
+      "ok": true,
+      "status": 200
+    }
+  ],
+  "cleanup": {
+    "localAppStopped": true,
+    "testDatabaseDropped": true,
+    "tunnelStopped": true
+  },
+  "notes": "Existing cluster session retained. No deployment or existing data changes.",
+  "allPassed": true
+}

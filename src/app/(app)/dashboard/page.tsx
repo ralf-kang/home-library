@@ -2,6 +2,8 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { EmptyState } from '@/components/Art'
 import BookCover from '@/components/BookCover'
+import LibraryCover from '@/components/library/LibraryCover'
+import { readLibraryAppearance } from '@/lib/library-appearance'
 import FamilyInfo from '@/components/FamilyInfo'
 import SponsorBanner from '@/components/SponsorBanner'
 import { prisma } from '@/lib/db'
@@ -30,6 +32,7 @@ export default async function DashboardPage({
 
   return (
     <div className="space-y-5">
+      <LibraryCover appearance={readLibraryAppearance(me.libraryAppearance)} householdName={household.name} />
       {sp.welcome && (
         <p className="rounded-lg bg-brand-soft p-3 text-sm text-brand">
           {household.name}을 만들었습니다. 책을 등록하고 가족을 초대해 보세요.
@@ -40,6 +43,7 @@ export default async function DashboardPage({
 
       <div className="flex flex-wrap items-center gap-2">
         <h1 className="mr-2 text-xl font-bold">취향 대시보드</h1>
+        <Link href="/customize" className="btn-ghost text-xs">서재 꾸미기</Link>
         <Link href="/dashboard" className={`chip px-3 py-1 ${!target ? 'bg-brand text-white' : 'bg-white ring-1 ring-line'}`}>
           가족 전체
         </Link>

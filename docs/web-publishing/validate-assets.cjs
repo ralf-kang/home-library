@@ -14,18 +14,22 @@ const add = (name,ok,detail) => {report.checks.push({name,ok,detail}); if(!ok)pr
 (async()=>{
   for (const item of manifest.assets) {
     const file=path.join(imgRoot,item.file), data=fs.readFileSync(file);
-    const meta=await sharp(data).metadata();
-    await sharp(data).raw().toBuffer();
-    add('decode: '+item.file, meta.width===item.width && meta.height===item.height, `${meta.width}x${meta.height}, ${data.length} bytes`);
+    if (!['mp4','webm'].includes(item.type)) {
+      const meta=await sharp(data).metadata();
+      await sharp(data).raw().toBuffer();
+      add('decode: '+item.file, meta.width===item.width && meta.height===item.height, `${meta.width}x${meta.height}, ${data.length} bytes`);
+    }
     add('sha256: '+item.file, crypto.createHash('sha256').update(data).digest('hex')===item.sha256, 'matches manifest');
-    if (item.motion) {
+    if (item.type==='animated-svg') {
       add('reduced motion: '+item.file, data.includes(Buffer.from('prefers-reduced-motion:reduce')) && !data.includes(Buffer.from('infinite')), 'finite CSS animation with reduced-motion rule');
       add('poster: '+item.file, fs.existsSync(path.join(imgRoot,item.fallback)),item.fallback);
     }
   }
-  const files=manifest.assets.filter(x=>x.type==='webp');
-  add('photo size budget', files.every(x=>x.bytes<200*1024),'All 6 WebP files below 200 KiB');
-  add('runtime inventory', manifest.assets.length===22,'6 WebP + 16 SVG; 3 PNG masters excluded');
+  const files=manifest.assets.filter(x=>x.file.startsWith('photos/'));
+  add('photo size budget', files.every(x=>x.bytes<200*1024),`All ${files.length} photo WebP files below 200 KiB`);
+  const mediaCount=fs.readdirSync(path.join(imgRoot,'photos')).length+fs.readdirSync(path.join(imgRoot,'illustrations')).length+fs.readdirSync(path.join(imgRoot,'icons')).length+fs.readdirSync(path.join(imgRoot,'motion')).length+fs.readdirSync(path.join(imgRoot,'video')).filter(x=>/\.(mp4|webm|webp)$/.test(x)).length;
+  add('runtime inventory', manifest.assets.length===mediaCount,`${mediaCount} runtime media files; PNG masters and text tracks excluded`);
+  for(const item of manifest.supportFiles || []){const data=fs.readFileSync(path.join(imgRoot,item.file));add('support hash: '+item.file,crypto.createHash('sha256').update(data).digest('hex')===item.sha256,'matches manifest')}
   // Render a contact sheet for model/user visual inspection, never a production asset.
   const selected=manifest.assets.filter(x=>(x.type==='webp' && x.width>1000) || x.file.startsWith('illustrations/') || x.file.endsWith('-poster.svg'));
   const cells=[]; const cw=360,ch=270,cols=3;

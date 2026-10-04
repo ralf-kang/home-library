@@ -14,7 +14,7 @@ class Page(HTMLParser):
     def handle_starttag(self,tag,attrs):
         a=dict(attrs)
         if 'id' in a: self.ids.append(a['id'])
-        for key in ('src','href'):
+        for key in ('src','href','poster'):
             if a.get(key): self.links.append(a[key])
         if a.get('srcset'):
             self.links.extend(part.strip().split()[0] for part in a['srcset'].split(','))
@@ -27,7 +27,7 @@ class Page(HTMLParser):
     def handle_data(self,data):
         if self.in_script: self.scripts.append(data)
 
-for name in ['design-guide.html','landing-preview.html']:
+for name in ['design-guide.html','landing-preview.html','media-preview.html']:
     p=Page(); p.feed((DOC/name).read_text(encoding='utf-8'))
     for ref in p.links:
         parsed=urlparse(ref)
@@ -38,8 +38,10 @@ for name in ['design-guide.html','landing-preview.html']:
         elif parsed.fragment and parsed.fragment not in p.ids: errors.append(f'{name}: missing anchor {ref}')
     if len(p.ids)!=len(set(p.ids)): errors.append(f'{name}: duplicate ids')
     for i,script in enumerate(p.scripts): (DOC/f'{name}.script-{i}.js').write_text(script,encoding='utf-8')
+    report['checks']=[c for c in report['checks'] if c['name']!=f'HTML references and accessibility structure: {name}']
     report['checks'].append(dict(name=f'HTML references and accessibility structure: {name}',ok=not errors,detail=f'{len(p.links)} references; {p.images} images with alt attributes'))
 for svg in (ROOT/'src/img').rglob('*.svg'): ET.parse(svg)
+report['checks']=[c for c in report['checks'] if c['name'] not in ['SVG XML','guide references']]
 report['checks'].append(dict(name='SVG XML',ok=True,detail='16 SVG files parse successfully'))
 report['checks'].append(dict(name='guide references',ok=not errors,detail=errors or 'All local links, srcsets and anchor targets exist; no duplicate IDs'))
 (DOC/'validation-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')

@@ -62,6 +62,66 @@
       "detail": "matches manifest"
     },
     {
+      "name": "decode: photos/me-reading-journal-desk-768.webp",
+      "ok": true,
+      "detail": "768x432, 49304 bytes"
+    },
+    {
+      "name": "sha256: photos/me-reading-journal-desk-768.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: photos/me-reading-journal-desk-1536.webp",
+      "ok": true,
+      "detail": "1536x864, 140138 bytes"
+    },
+    {
+      "name": "sha256: photos/me-reading-journal-desk-1536.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: photos/recommend-unread-books-selection-768.webp",
+      "ok": true,
+      "detail": "768x432, 32802 bytes"
+    },
+    {
+      "name": "sha256: photos/recommend-unread-books-selection-768.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: photos/recommend-unread-books-selection-1536.webp",
+      "ok": true,
+      "detail": "1536x864, 90896 bytes"
+    },
+    {
+      "name": "sha256: photos/recommend-unread-books-selection-1536.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: photos/add-photo-shelf-framing-768.webp",
+      "ok": true,
+      "detail": "768x432, 25562 bytes"
+    },
+    {
+      "name": "sha256: photos/add-photo-shelf-framing-768.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: photos/add-photo-shelf-framing-1536.webp",
+      "ok": true,
+      "detail": "1536x864, 136176 bytes"
+    },
+    {
+      "name": "sha256: photos/add-photo-shelf-framing-1536.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
       "name": "decode: illustrations/shelves-empty-first-book.svg",
       "ok": true,
       "detail": "480x320, 1105 bytes"
@@ -242,24 +302,89 @@
       "detail": "matches manifest"
     },
     {
+      "name": "sha256: video/landing-family-library-story-720p.mp4",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "sha256: video/landing-family-library-story-720p.webm",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: video/landing-family-library-story-poster.webp",
+      "ok": true,
+      "detail": "1280x720, 62812 bytes"
+    },
+    {
+      "name": "sha256: video/landing-family-library-story-poster.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "sha256: video/add-photo-three-step-guide-720p.mp4",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "sha256: video/add-photo-three-step-guide-720p.webm",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: video/add-photo-three-step-guide-poster.webp",
+      "ok": true,
+      "detail": "1280x720, 21574 bytes"
+    },
+    {
+      "name": "sha256: video/add-photo-three-step-guide-poster.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
       "name": "photo size budget",
       "ok": true,
-      "detail": "All 6 WebP files below 200 KiB"
+      "detail": "All 12 photo WebP files below 200 KiB"
     },
     {
       "name": "runtime inventory",
       "ok": true,
-      "detail": "6 WebP + 16 SVG; 3 PNG masters excluded"
+      "detail": "34 runtime media files; PNG masters and text tracks excluded"
+    },
+    {
+      "name": "support hash: video/add-photo-three-step-guide-ko.vtt",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "support hash: video/add-photo-three-step-guide-transcript.txt",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "support hash: video/landing-family-library-story-ko.vtt",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "support hash: video/landing-family-library-story-transcript.txt",
+      "ok": true,
+      "detail": "matches manifest"
     },
     {
       "name": "HTML references and accessibility structure: design-guide.html",
       "ok": true,
-      "detail": "59 references; 21 images with alt attributes"
+      "detail": "73 references; 26 images with alt attributes"
     },
     {
       "name": "HTML references and accessibility structure: landing-preview.html",
       "ok": true,
-      "detail": "30 references; 12 images with alt attributes"
+      "detail": "35 references; 12 images with alt attributes"
+    },
+    {
+      "name": "HTML references and accessibility structure: media-preview.html",
+      "ok": true,
+      "detail": "23 references; 3 images with alt attributes"
     },
     {
       "name": "SVG XML",
@@ -270,41 +395,6 @@
       "name": "guide references",
       "ok": true,
       "detail": "All local links, srcsets and anchor targets exist; no duplicate IDs"
-    },
-    {
-      "name": "HTML references and accessibility structure: design-guide.html",
-      "ok": true,
-      "detail": "59 references; 21 images with alt attributes"
-    },
-    {
-      "name": "HTML references and accessibility structure: landing-preview.html",
-      "ok": true,
-      "detail": "30 references; 12 images with alt attributes"
-    },
-    {
-      "name": "SVG XML",
-      "ok": true,
-      "detail": "16 SVG files parse successfully"
-    },
-    {
-      "name": "guide references",
-      "ok": true,
-      "detail": "All local links, srcsets and anchor targets exist; no duplicate IDs"
-    },
-    {
-      "name": "Next.js TypeScript",
-      "ok": true,
-      "detail": "node node_modules/typescript/bin/tsc --noEmit --incremental false: exit 0"
-    },
-    {
-      "name": "Guide JavaScript syntax",
-      "ok": true,
-      "detail": "node --check: exit 0"
-    },
-    {
-      "name": "Visual asset review",
-      "ok": true,
-      "detail": "3 generated photos and SVG raster contact sheet inspected; production browser rendering remains unverified"
     }
   ],
   "limitations": [

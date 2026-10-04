@@ -3,6 +3,8 @@ import type { CopyStatus, ReadingStatus } from '@prisma/client'
 import ActionForm from '@/components/ActionForm'
 import { EmptyState } from '@/components/Art'
 import BookCover from '@/components/BookCover'
+import LibraryCover from '@/components/library/LibraryCover'
+import { readLibraryAppearance } from '@/lib/library-appearance'
 import { prisma } from '@/lib/db'
 import { COPY_STATUS_LABEL, LOCATION_KIND_LABEL, READING_STATUS_LABEL, formatCopyCode } from '@/lib/format'
 import { descendantIds, type LocationNode } from '@/lib/location'
@@ -102,6 +104,7 @@ export default async function ShelvesPage({ searchParams }: { searchParams: Prom
       </aside>
 
       <section className="min-w-0 space-y-4">
+        <LibraryCover appearance={readLibraryAppearance(me.libraryAppearance)} householdName={household.name} />
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
             <p className="text-xs text-muted">{current ? LOCATION_KIND_LABEL[current.kind] : isNone ? '' : '우리 집'}</p>
@@ -112,7 +115,8 @@ export default async function ShelvesPage({ searchParams }: { searchParams: Prom
               {copies.length}권{copies.length >= MAX_COPIES && ` (최대 ${MAX_COPIES}권까지 표시 — 왼쪽에서 범위를 좁혀 보세요)`}
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Link href="/customize" className="btn-ghost">서재 꾸미기</Link>
             {canWrite && current?.kind === 'SHELF' && (
               <Link href={`/add/photo?loc=${current.id}`} className="btn-ghost">
                 이 칸 사진으로 등록
@@ -155,7 +159,7 @@ export default async function ShelvesPage({ searchParams }: { searchParams: Prom
                     <span className="ml-auto text-xs text-muted">{items.length}권</span>
                   </div>
                   {/* 선반: 표지를 바닥선 위에 세운다 */}
-                  <ul className="grid grid-cols-2 gap-x-3 gap-y-4 rounded-b-lg border-b-8 border-[#c9b79c] bg-gradient-to-b from-transparent to-[#efe7da] px-2 pt-2 pb-3 min-[480px]:grid-cols-3 sm:grid-cols-4 lg:grid-cols-6">
+                  <ul className="library-shelf-row">
                     {items.map((c) => (
                       <CoverTile
                         key={c.id}
@@ -223,7 +227,7 @@ function CoverTile({
           {c.book.authors && <p className="truncate text-[10px] opacity-80">{c.book.authors}</p>}
         </div>
       </div>
-      <p className="mt-1 line-clamp-2 text-[11px] leading-tight text-ink/80 sm:hidden">{title}</p>
+      <p className="shelf-book-title mt-1 line-clamp-2 text-[11px] leading-tight text-ink/80">{title}</p>
     </>
   )
   return (

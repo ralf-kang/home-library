@@ -1,11 +1,12 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "created": "2026-10-04",
+  "revision": "additional-media-02",
   "service": "우리집 서재",
   "assetRoot": "src/img",
-  "runtimeAssets": 22,
-  "naming": "{page-or-feature}-{purpose}-{subject}[-{width}].{ext}",
-  "integration": "Next.js static imports; src/img is not a public URL",
+  "runtimeAssets": 34,
+  "naming": "{page-or-feature}-{purpose}-{subject}[-{width-or-resolution}].{ext}",
+  "integration": "Images: Next.js static imports. Video: copy src/img/video to public/img/video when integrating; no public URL exists yet.",
   "assets": [
     {
       "id": "landing-hero-family-reading-768",
@@ -130,6 +131,130 @@
       "focalPoint": "50% 50%",
       "motion": null,
       "sha256": "91a7970249daab5b9bb869620d28d539af8bd54e990a871a0cc03cd0eaad33a8"
+    },
+    {
+      "id": "me-reading-journal-desk-768",
+      "type": "webp",
+      "key": "me-reading-journal-desk",
+      "file": "photos/me-reading-journal-desk-768.webp",
+      "width": 768,
+      "height": 432,
+      "bytes": 49304,
+      "pages": [
+        "/me",
+        "/books/[id]"
+      ],
+      "placement": "독서 기록 첫 사용 안내의 16:9 사진. 기록 목록이 있으면 작은 보조 컷으로 축소",
+      "alt": "나무 책상 위 독서 노트와 펜, 책과 찻잔",
+      "objectFit": "contain",
+      "source": "src/app/(app)/me/page.tsx; src/app/(app)/books/[id]/page.tsx",
+      "origin": "AI-generated via built-in image_gen.imagegen",
+      "focalPoint": "50% 50%",
+      "motion": null,
+      "sha256": "e5196a44ddfdabffd6ea9a10c1cd39ebad059b8e9256d0676e19290a4cc79e4c"
+    },
+    {
+      "id": "me-reading-journal-desk-1536",
+      "type": "webp",
+      "key": "me-reading-journal-desk",
+      "file": "photos/me-reading-journal-desk-1536.webp",
+      "width": 1536,
+      "height": 864,
+      "bytes": 140138,
+      "pages": [
+        "/me",
+        "/books/[id]"
+      ],
+      "placement": "독서 기록 첫 사용 안내의 16:9 사진. 기록 목록이 있으면 작은 보조 컷으로 축소",
+      "alt": "나무 책상 위 독서 노트와 펜, 책과 찻잔",
+      "objectFit": "contain",
+      "source": "src/app/(app)/me/page.tsx; src/app/(app)/books/[id]/page.tsx",
+      "origin": "AI-generated via built-in image_gen.imagegen",
+      "focalPoint": "50% 50%",
+      "motion": null,
+      "sha256": "01e942d5a830d6dc49893910e5ad09fcf200c7ecd69a5aacb19d485da1f50c74"
+    },
+    {
+      "id": "recommend-unread-books-selection-768",
+      "type": "webp",
+      "key": "recommend-unread-books-selection",
+      "file": "photos/recommend-unread-books-selection-768.webp",
+      "width": 768,
+      "height": 432,
+      "bytes": 32802,
+      "pages": [
+        "/recommend"
+      ],
+      "placement": "사기 전에 이 책부터 섹션 소개용 16:9 사진. 실제 추천 도서 표지를 대체하지 않음",
+      "alt": "다시 읽을 책을 고르듯 가지런히 놓인 초록색과 갈색 책",
+      "objectFit": "contain",
+      "source": "src/app/(app)/recommend/page.tsx",
+      "origin": "AI-generated via built-in image_gen.imagegen",
+      "focalPoint": "50% 50%",
+      "motion": null,
+      "sha256": "de2f796e307fdb44bbefcd118f1edbb66b3d92a10bb710a639096a66d174eca3"
+    },
+    {
+      "id": "recommend-unread-books-selection-1536",
+      "type": "webp",
+      "key": "recommend-unread-books-selection",
+      "file": "photos/recommend-unread-books-selection-1536.webp",
+      "width": 1536,
+      "height": 864,
+      "bytes": 90896,
+      "pages": [
+        "/recommend"
+      ],
+      "placement": "사기 전에 이 책부터 섹션 소개용 16:9 사진. 실제 추천 도서 표지를 대체하지 않음",
+      "alt": "다시 읽을 책을 고르듯 가지런히 놓인 초록색과 갈색 책",
+      "objectFit": "contain",
+      "source": "src/app/(app)/recommend/page.tsx",
+      "origin": "AI-generated via built-in image_gen.imagegen",
+      "focalPoint": "50% 50%",
+      "motion": null,
+      "sha256": "5368515cd64200ff917acb5c4dd145739dc4d2e0d2d465a7546f54937f77bb38"
+    },
+    {
+      "id": "add-photo-shelf-framing-768",
+      "type": "webp",
+      "key": "add-photo-shelf-framing",
+      "file": "photos/add-photo-shelf-framing-768.webp",
+      "width": 768,
+      "height": 432,
+      "bytes": 25562,
+      "pages": [
+        "/add/photo",
+        "/#how"
+      ],
+      "placement": "사진 업로드 전 촬영 안내. 16:9 전체 프레임 유지, 최대 표시 폭 480px",
+      "alt": "책장 한 칸의 책등을 정면으로 담는 휴대폰 촬영 구도",
+      "objectFit": "contain",
+      "source": "src/app/(app)/add/photo/page.tsx",
+      "origin": "AI-generated via built-in image_gen.imagegen",
+      "focalPoint": "50% 50%",
+      "motion": null,
+      "sha256": "788b0b2438b8f9b5366454a625dc46391fe19090fcd7e7a0cceeaccbb905fb94"
+    },
+    {
+      "id": "add-photo-shelf-framing-1536",
+      "type": "webp",
+      "key": "add-photo-shelf-framing",
+      "file": "photos/add-photo-shelf-framing-1536.webp",
+      "width": 1536,
+      "height": 864,
+      "bytes": 136176,
+      "pages": [
+        "/add/photo",
+        "/#how"
+      ],
+      "placement": "사진 업로드 전 촬영 안내. 16:9 전체 프레임 유지, 최대 표시 폭 480px",
+      "alt": "책장 한 칸의 책등을 정면으로 담는 휴대폰 촬영 구도",
+      "objectFit": "contain",
+      "source": "src/app/(app)/add/photo/page.tsx",
+      "origin": "AI-generated via built-in image_gen.imagegen",
+      "focalPoint": "50% 50%",
+      "motion": null,
+      "sha256": "829690d34ed1296ab8adde8d490b67b0e6c5a54a515b1aac0f6fcfd8ef994b88"
     },
     {
       "id": "shelves-empty-first-book",
@@ -444,6 +569,188 @@
       "fallback": null,
       "origin": "original editable SVG, adapted to existing icon.svg palette",
       "sha256": "6753c1bc209f6ce5d2af5ab5661b266ef3168f9a4ffd456d2c5ea434acec2dd5"
+    },
+    {
+      "id": "landing-family-library-story-720p-mp4",
+      "file": "video/landing-family-library-story-720p.mp4",
+      "type": "mp4",
+      "width": 1280,
+      "height": 720,
+      "bytes": 581426,
+      "pages": [
+        "/",
+        "/#how"
+      ],
+      "placement": "랜딩 사용 방법 근처의 사용자 재생형 소개 영상",
+      "alt": "가족 독서, 독서 기록, 이웃 책 나눔을 소개하는 12초 사진 편집 영상",
+      "objectFit": "contain",
+      "origin": "AI-generated still photos edited into a video; original typography and camera pans",
+      "durationSeconds": 12,
+      "fps": 24,
+      "audio": false,
+      "poster": "video/landing-family-library-story-poster.webp",
+      "captions": "video/landing-family-library-story-ko.vtt",
+      "transcript": "video/landing-family-library-story-transcript.txt",
+      "motion": {
+        "durationMs": 12000,
+        "iterations": 1,
+        "trigger": "user controls",
+        "reducedMotion": "poster until explicit play"
+      },
+      "codec": "h264",
+      "sha256": "33395fc214f977c829e9853443fecbefd3b30196be57f14f006647b75819f622"
+    },
+    {
+      "id": "landing-family-library-story-720p-webm",
+      "file": "video/landing-family-library-story-720p.webm",
+      "type": "webm",
+      "width": 1280,
+      "height": 720,
+      "bytes": 476710,
+      "pages": [
+        "/",
+        "/#how"
+      ],
+      "placement": "랜딩 사용 방법 근처의 사용자 재생형 소개 영상",
+      "alt": "가족 독서, 독서 기록, 이웃 책 나눔을 소개하는 12초 사진 편집 영상",
+      "objectFit": "contain",
+      "origin": "AI-generated still photos edited into a video; original typography and camera pans",
+      "durationSeconds": 12,
+      "fps": 24,
+      "audio": false,
+      "poster": "video/landing-family-library-story-poster.webp",
+      "captions": "video/landing-family-library-story-ko.vtt",
+      "transcript": "video/landing-family-library-story-transcript.txt",
+      "motion": {
+        "durationMs": 12000,
+        "iterations": 1,
+        "trigger": "user controls",
+        "reducedMotion": "poster until explicit play"
+      },
+      "codec": "vp9",
+      "sha256": "e22e9fe1b33845fb741d25815a7e1a61895605bb4f3369f5c69f6ad92ea3e68b"
+    },
+    {
+      "id": "landing-family-library-story-poster",
+      "file": "video/landing-family-library-story-poster.webp",
+      "type": "webp",
+      "width": 1280,
+      "height": 720,
+      "bytes": 62812,
+      "pages": [
+        "/",
+        "/#how"
+      ],
+      "placement": "영상 재생 전 포스터 및 동작 줄이기 대체 이미지",
+      "alt": "가족 독서, 독서 기록, 이웃 책 나눔을 소개하는 12초 사진 편집 영상",
+      "objectFit": "contain",
+      "origin": "AI-generated still photos edited into a video; original typography and camera pans",
+      "motion": null,
+      "sha256": "33e4e8d649d3a7760f593b810c5594a05adf8b5abc4dee8de80d8662e7f45b4b"
+    },
+    {
+      "id": "add-photo-three-step-guide-720p-mp4",
+      "file": "video/add-photo-three-step-guide-720p.mp4",
+      "type": "mp4",
+      "width": 1280,
+      "height": 720,
+      "bytes": 166615,
+      "pages": [
+        "/add/photo",
+        "/#how"
+      ],
+      "placement": "사진 업로드 전 촬영·검토·등록 안내, 사용자 재생",
+      "alt": "책장 촬영, 판독 목록 확인, 등록의 세 단계를 설명하는 12초 모션그래픽",
+      "objectFit": "contain",
+      "origin": "Original vector motion graphics; procedural SVG frames",
+      "durationSeconds": 12,
+      "fps": 24,
+      "audio": false,
+      "poster": "video/add-photo-three-step-guide-poster.webp",
+      "captions": "video/add-photo-three-step-guide-ko.vtt",
+      "transcript": "video/add-photo-three-step-guide-transcript.txt",
+      "motion": {
+        "durationMs": 12000,
+        "iterations": 1,
+        "trigger": "user controls",
+        "reducedMotion": "poster until explicit play"
+      },
+      "codec": "h264",
+      "sha256": "15e6e3fe5adbbd2f97eccd1b108f362c304773ae556a55cf9fccd646adefe369"
+    },
+    {
+      "id": "add-photo-three-step-guide-720p-webm",
+      "file": "video/add-photo-three-step-guide-720p.webm",
+      "type": "webm",
+      "width": 1280,
+      "height": 720,
+      "bytes": 207930,
+      "pages": [
+        "/add/photo",
+        "/#how"
+      ],
+      "placement": "사진 업로드 전 촬영·검토·등록 안내, 사용자 재생",
+      "alt": "책장 촬영, 판독 목록 확인, 등록의 세 단계를 설명하는 12초 모션그래픽",
+      "objectFit": "contain",
+      "origin": "Original vector motion graphics; procedural SVG frames",
+      "durationSeconds": 12,
+      "fps": 24,
+      "audio": false,
+      "poster": "video/add-photo-three-step-guide-poster.webp",
+      "captions": "video/add-photo-three-step-guide-ko.vtt",
+      "transcript": "video/add-photo-three-step-guide-transcript.txt",
+      "motion": {
+        "durationMs": 12000,
+        "iterations": 1,
+        "trigger": "user controls",
+        "reducedMotion": "poster until explicit play"
+      },
+      "codec": "vp9",
+      "sha256": "dfd23efebc0aba0788c71eec2837d2da5dd41958ee5fef07c9c5665090c01da0"
+    },
+    {
+      "id": "add-photo-three-step-guide-poster",
+      "file": "video/add-photo-three-step-guide-poster.webp",
+      "type": "webp",
+      "width": 1280,
+      "height": 720,
+      "bytes": 21574,
+      "pages": [
+        "/add/photo",
+        "/#how"
+      ],
+      "placement": "영상 재생 전 포스터 및 동작 줄이기 대체 이미지",
+      "alt": "책장 촬영, 판독 목록 확인, 등록의 세 단계를 설명하는 12초 모션그래픽",
+      "objectFit": "contain",
+      "origin": "Original vector motion graphics; procedural SVG frames",
+      "motion": null,
+      "sha256": "dcac8e20cb5e6ea623192e79ad51036ad323bd88536e7cfdab3da483eb12cded"
+    }
+  ],
+  "supportFiles": [
+    {
+      "file": "video/add-photo-three-step-guide-ko.vtt",
+      "type": "captions",
+      "bytes": 445,
+      "sha256": "aca218224ce4bdde04813706762f940e0fb9073ee4398b46ad00ae3add1a0840"
+    },
+    {
+      "file": "video/add-photo-three-step-guide-transcript.txt",
+      "type": "transcript",
+      "bytes": 456,
+      "sha256": "532b33dc85aac8203e37208b049c6bf6a0c32ae31729719950ee1f26a66625b9"
+    },
+    {
+      "file": "video/landing-family-library-story-ko.vtt",
+      "type": "captions",
+      "bytes": 351,
+      "sha256": "dd3b1695fd3ae0566a9345e339396a923da54047d6478fe7917f8b66ac0a2c8b"
+    },
+    {
+      "file": "video/landing-family-library-story-transcript.txt",
+      "type": "transcript",
+      "bytes": 362,
+      "sha256": "4acc7cec6ec45a6288927cd96aaf82c96d403da6a1e19f821617975c3d39540a"
     }
   ]
 }

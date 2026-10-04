@@ -40,5 +40,47 @@
     "width": 1536,
     "height": 1024,
     "bytes": 130010
+  },
+  {
+    "key": "me-reading-journal-desk",
+    "file": "photos/me-reading-journal-desk-768.webp",
+    "width": 768,
+    "height": 432,
+    "bytes": 49304
+  },
+  {
+    "key": "me-reading-journal-desk",
+    "file": "photos/me-reading-journal-desk-1536.webp",
+    "width": 1536,
+    "height": 864,
+    "bytes": 140138
+  },
+  {
+    "key": "recommend-unread-books-selection",
+    "file": "photos/recommend-unread-books-selection-768.webp",
+    "width": 768,
+    "height": 432,
+    "bytes": 32802
+  },
+  {
+    "key": "recommend-unread-books-selection",
+    "file": "photos/recommend-unread-books-selection-1536.webp",
+    "width": 1536,
+    "height": 864,
+    "bytes": 90896
+  },
+  {
+    "key": "add-photo-shelf-framing",
+    "file": "photos/add-photo-shelf-framing-768.webp",
+    "width": 768,
+    "height": 432,
+    "bytes": 25562
+  },
+  {
+    "key": "add-photo-shelf-framing",
+    "file": "photos/add-photo-shelf-framing-1536.webp",
+    "width": 1536,
+    "height": 864,
+    "bytes": 136176
   }
 ]

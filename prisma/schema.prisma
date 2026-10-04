@@ -93,6 +93,9 @@ model Member {
   sortOrder   Int           @default(0) @map("sort_order")
   createdAt   DateTime      @default(now()) @map("created_at")
 
+  // 계정과 서재별 개인 화면 설정. 실제 가구 이름·책 위치·다른 가족 화면과 독립.
+  libraryAppearance Json?   @map("library_appearance")
+
   ownedCopies Copy[]     @relation("CopyOwner")
   readings    Reading[]
   wishItems   WishItem[]

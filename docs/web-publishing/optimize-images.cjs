@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const sharp = require('sharp');
 const root = path.resolve(__dirname, '../..');
-const prompts = require('./image-prompts.json');
+const prompts = [...require('./image-prompts.json'), ...require('./image-prompts-additional.json')];
 (async () => {
   const records = [];
   for (const p of prompts) {

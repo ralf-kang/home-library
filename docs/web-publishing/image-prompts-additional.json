@@ -1,0 +1,20 @@
+[
+  {
+    "key": "me-reading-journal-desk",
+    "prompt": "Use case: photorealistic-natural. Asset type: editorial photo for a Korean family home-library web service, reading journal page. Landscape 16:9 composition, high resolution. A quiet overhead three-quarter photograph of an open cream paper reading notebook with blank ruled pages, a dark forest green fountain pen lying beside it, an open anonymous book and a small ceramic tea cup on warm oak desk, folded ivory linen and soft natural window light. Real tactile paper, subtle shadows, architectural editorial photography, no people. Palette ivory #faf8f3, forest green #2f5d50, pale sage and warm oak. Main notebook and pen entirely inside central 70 percent, balanced generous breathing space. Notebook is blank, books have no recognizable titles or legible words. No lettering, watermarks, brand logos, interface, infographic or artificial glow. Calm premium commercially polished believable photograph.",
+    "tool": "image_gen.imagegen (built-in)",
+    "sourceFile": "C:\\Users\\ralfk\\.codex\\generated_images\\01a10471-c9e0-74d1-839e-11fccc9e542d\\exec-e16fdd08-e77d-4a6b-b4ae-79c2595c0e7c.png"
+  },
+  {
+    "key": "recommend-unread-books-selection",
+    "prompt": "Use case: photorealistic-natural. Asset type: premium editorial recommendation section image for Korean home-library service, wide landscape 16:9. A carefully composed still life of four anonymous cloth bound books on an oak console: two stacked horizontally, one standing closed, one open with a forest green ribbon bookmark, a tiny ceramic vase with a single leafy stem beside them. Modern calm apartment reading corner, softly blurred oak bookcase in background. Forest green #2f5d50, warm cream #faf8f3, muted terracotta accent, sage and natural wood. Warm neutral daylight, realistic linen book covers, high-end magazine photography with subtle film grain. All books in central 70 percent and fully in frame; visual communicates rediscovering books already at home. No visible title lettering or famous book covers, no logos, no words, no watermark, no UI, no people. Sophisticated airy editorial style consistent with a family reading platform.",
+    "tool": "image_gen.imagegen (built-in)",
+    "sourceFile": "C:\\Users\\ralfk\\.codex\\generated_images\\01a10471-c9e0-74d1-839e-11fccc9e542d\\exec-9d2a8d72-4e14-41bf-b9ab-60926fe69401.png"
+  },
+  {
+    "key": "add-photo-shelf-framing",
+    "prompt": "Use case: photorealistic-natural. Asset type: high-end editorial image for a home library shelf photo capture guide, landscape 16:9. Straight-on view of one single well-lit natural oak shelf containing seven anonymous plain linen clothbound books, varying heights in forest green, sage, cream and restrained terracotta. At lower right foreground a small unbranded phone on a minimal desk stand in landscape orientation, rear camera facing the shelf; the phone screen shows a simple natural camera view of the same row of books without buttons, text, overlays or invented results. All book spines unobstructed in the upper middle portion of frame. No people or hands. Soft natural daylight and believable wood/paper textures, premium architectural editorial photograph, warm ivory backdrop #faf8f3 and forest green #2f5d50 accents. Show only one shelf, clean geometry, lens perpendicular to spines, no stacked shelves, no logos, no text anywhere, no legible spine titles, no labels, no scan beams or science fiction.",
+    "tool": "image_gen.imagegen (built-in)",
+    "sourceFile": "C:\\Users\\ralfk\\.codex\\generated_images\\01a10471-c9e0-74d1-839e-11fccc9e542d\\exec-ce481e64-4b71-4abc-93ae-b92e536e193d.png"
+  }
+]

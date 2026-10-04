@@ -14,6 +14,7 @@ import {
   formatDate,
 } from '@/lib/format'
 import { can } from '@/lib/permissions'
+import { LABEL_STATE_TEXT, callNumber, labelState } from '@/lib/labels'
 import { addCopy, deleteBook, deleteCopy, updateCopy } from '@/server/actions/books'
 import { addNote, deleteNote, incrementReadCount, saveReading } from '@/server/actions/readings'
 import { requireMember } from '@/server/auth'
@@ -24,12 +25,12 @@ export default async function BookPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ added?: string; as?: string }>
+  searchParams: Promise<{ added?: string; as?: string; copy?: string }>
 }) {
   const { member: me, household } = await requireMember()
   const hid = household.id
   const { id } = await params
-  const { added, as } = await searchParams
+  const { added, as, copy: scannedSeq } = await searchParams
   const [book, loc, members] = await Promise.all([getBookDetail(hid, id), loadLocations(hid), listMembers(hid)])
   if (!book) notFound()
   const canWrite = can(me.role, 'book.write')
@@ -114,10 +115,21 @@ export default async function BookPage({
         <ul className="space-y-3">
           {book.copies.map((c) => {
             const place = loc.describe(c.locationId)
+            const cn = callNumber(place?.code, c.shelfPos)
+            const ls = labelState(cn, c.labelCode)
+            const scanned = scannedSeq === String(c.seq) // 라벨 QR 로 들어온 소장본
             return (
-              <li key={c.id} className="rounded-lg border border-line p-3">
+              <li key={c.id} className={`rounded-lg border p-3 ${scanned ? 'border-brand ring-2 ring-brand/30' : 'border-line'}`}>
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                   <span className="font-mono text-xs text-muted">{formatCopyCode(c.seq)}</span>
+                  {cn && (
+                    <span className="chip bg-ink font-mono text-white" title="청구기호(칸 안 순서)">
+                      {cn}
+                    </span>
+                  )}
+                  {ls !== 'ok' && ls !== 'unplaced' && (
+                    <span className={`chip ${ls === 'stale' ? 'bg-amber-100 text-amber-900' : 'bg-paper ring-1 ring-line'}`}>라벨 {LABEL_STATE_TEXT[ls]}</span>
+                  )}
                   {place ? (
                     <Link href={`/shelves?loc=${c.locationId}`} className="font-semibold">
                       {place.zone && <span className="mr-1 inline-block h-2.5 w-2.5 rounded-full" style={{ background: place.zone.color }} />}

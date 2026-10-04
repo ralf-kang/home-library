@@ -1,7 +1,7 @@
 /**
  * 웹 퍼블리싱 에셋 연결(src/img, docs/web-publishing). src/img 는 공개 URL 이 아니므로 정적 import 로만 쓴다.
  *
- * 사진은 미리 만든 WebP 해상도 변형(768/1536, 640/1120)으로 srcset 을 직접 만든다 —
+ * 사진은 미리 만든 WebP 해상도 변형(768/1536, 640/1120, 16:9 추가 사진 768/1536)으로 srcset 을 직접 만든다 —
  * 런타임 이미지 최적화(sharp)는 Windows 에서 빌드한 standalone 이미지에 Linux 바이너리가 없어 쓰지 않는다.
  * width/height 를 주어 레이아웃 이동(CLS)을 막고, 히어로만 우선 로드(fetchPriority=high), 나머지는 lazy.
  * 장식 그림은 인접 문구와 겹치므로 alt="" (asset-manifest.json 규칙).
@@ -13,6 +13,12 @@ import authLg from '@/img/photos/auth-reading-nook-1120.webp'
 import authSm from '@/img/photos/auth-reading-nook-640.webp'
 import shareLg from '@/img/photos/neighborhood-book-sharing-1536.webp'
 import shareSm from '@/img/photos/neighborhood-book-sharing-768.webp'
+import journalLg from '@/img/photos/me-reading-journal-desk-1536.webp'
+import journalSm from '@/img/photos/me-reading-journal-desk-768.webp'
+import unreadLg from '@/img/photos/recommend-unread-books-selection-1536.webp'
+import unreadSm from '@/img/photos/recommend-unread-books-selection-768.webp'
+import framingLg from '@/img/photos/add-photo-shelf-framing-1536.webp'
+import framingSm from '@/img/photos/add-photo-shelf-framing-768.webp'
 import shelvesEmpty from '@/img/illustrations/shelves-empty-first-book.svg'
 import searchEmpty from '@/img/illustrations/search-empty-discovery.svg'
 import createLibrary from '@/img/illustrations/onboarding-create-library.svg'
@@ -33,6 +39,10 @@ const PHOTOS = {
   landing: { sm: heroSm, lg: heroLg, alt: '햇살이 드는 거실에서 함께 책을 읽는 가족' },
   auth: { sm: authSm, lg: authLg, alt: '초록 안락의자와 나무 책장이 있는 햇살 드는 독서 공간' },
   neighbors: { sm: shareSm, lg: shareLg, alt: '동네 이웃끼리 책 두 권을 건네는 모습' },
+  // 16:9 추가 사진(Codex 제작, src/img/README.md '추가 에셋 사용 위치')
+  journal: { sm: journalSm, lg: journalLg, alt: '나무 책상 위 독서 노트와 펜, 책과 찻잔' },
+  unread: { sm: unreadSm, lg: unreadLg, alt: '다시 읽을 책을 고르듯 가지런히 놓인 초록색과 갈색 책' },
+  framing: { sm: framingSm, lg: framingLg, alt: '책장 한 칸의 책등을 정면으로 담는 휴대폰 촬영 구도' },
 } satisfies Record<string, { sm: StaticImg; lg: StaticImg; alt: string }>
 
 export type PhotoName = keyof typeof PHOTOS

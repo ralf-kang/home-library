@@ -83,7 +83,7 @@ async function FamilyView({
   const monthStart = new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1))
   const yearStart = new Date(Date.UTC(now.getFullYear(), 0, 1))
   const inHousehold = { member: { householdId: hid } }
-  const [bookCount, copyCount, locationCount, monthDone, yearDone, readingNow, recentDone, recentNotes, owned, doneByCat] = await Promise.all([
+  const [bookCount, copyCount, locationCount, monthDone, yearDone, readingNow, recentDone, recentNotes, owned, doneByCat, labeled] = await Promise.all([
     prisma.book.count({ where: { householdId: hid } }),
     prisma.copy.count({ where: { book: { householdId: hid } } }),
     prisma.location.count({ where: { householdId: hid, kind: 'SHELF' } }),
@@ -104,6 +104,7 @@ async function FamilyView({
     }),
     prisma.book.groupBy({ by: ['category'], where: { householdId: hid, copies: { some: {} } }, _count: { _all: true } }),
     prisma.book.groupBy({ by: ['category'], where: { householdId: hid, readings: { some: { status: 'DONE' } } }, _count: { _all: true } }),
+    prisma.copy.count({ where: { book: { householdId: hid }, labelPrintedAt: { not: null } } }),
   ])
   const yearByMember = new Map(yearDone.map((r) => [r.memberId, r._count._all]))
   const yearTotal = yearDone.reduce((s, r) => s + r._count._all, 0)
@@ -118,6 +119,7 @@ async function FamilyView({
     { done: locationCount > 0, label: '서가 위치(공간·책장·칸) 만들기', href: '/settings#locations', need: can(me.role, 'location.manage') },
     { done: bookCount > 0, label: '첫 책 등록하기(바코드·검색·사진)', href: '/add', need: can(me.role, 'book.write') },
     { done: members.length > 1, label: '가족 초대하기', href: '/settings#invite', need: can(me.role, 'family.invite') },
+    { done: labeled > 0, label: '책에 청구기호 라벨 붙이기', href: '/labels', need: can(me.role, 'book.write') && bookCount > 0 },
     { done: readingNow.length + recentDone.length > 0, label: '읽는 중·완독 기록 남기기', href: '/search', need: true },
   ].filter((s) => s.need)
 

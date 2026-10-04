@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { WishStatus } from '@prisma/client'
 import ActionForm from '@/components/ActionForm'
-import { Illustration } from '@/components/Art'
+import { Illustration, Photo } from '@/components/Art'
 import BookCover from '@/components/BookCover'
 import ConfirmButton from '@/components/ConfirmButton'
 import PurchaseLinks from '@/components/PurchaseLinks'
@@ -47,10 +47,18 @@ export default async function RecommendPage() {
       <h1 className="text-xl font-bold">{me.name}님을 위한 추천</h1>
 
       <section className="card space-y-2">
-        <h2 className="font-semibold">사기 전에, 이 책부터</h2>
-        <p className="text-sm text-muted">
-          {topCats.length ? `자주 읽는 분야(${topCats.join(', ')}) 중` : '집에 있는 책 중'} 아직 안 읽은 책입니다.
-        </p>
+        <div className="flex items-center gap-4">
+          <div className="min-w-0 flex-1">
+            <h2 className="font-semibold">사기 전에, 이 책부터</h2>
+            <p className="text-sm text-muted">
+              {topCats.length ? `자주 읽는 분야(${topCats.join(', ')}) 중` : '집에 있는 책 중'} 아직 안 읽은 책입니다.
+            </p>
+          </div>
+          {/* 섹션 소개용 사진(실제 추천 도서 표지를 대신하지 않음) */}
+          <div className="hidden w-48 shrink-0 sm:block">
+            <Photo name="unread" decorative sizes="192px" className="aspect-video rounded-xl object-cover" />
+          </div>
+        </div>
         {ownedUnread.length === 0 ? (
           <p className="text-sm text-muted">해당하는 책이 없습니다.</p>
         ) : (

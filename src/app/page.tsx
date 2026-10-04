@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { FeatureIcon, Illustration, Photo, type FeatureIconName, type IllustrationName } from '@/components/Art'
+import GuideVideo from '@/components/GuideVideo'
 import { CONTACT_EMAIL, GoogleSignInButton, PublicHeader, SERVICE_NAME, SiteFooter } from '@/components/SiteChrome'
 import { prisma } from '@/lib/db'
 import { isGoogleConfigured } from '@/lib/google-oidc'
@@ -131,6 +132,10 @@ export default async function LandingPage() {
                 </li>
               ))}
             </ol>
+            {/* 소개 영상: 사용자가 재생할 때만(자동 재생·반복 없음) */}
+            <div className="mx-auto mt-10 max-w-3xl">
+              <GuideVideo name="story" />
+            </div>
           </div>
         </section>
 

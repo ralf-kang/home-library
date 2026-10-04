@@ -31,5 +31,6 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|icon.svg).*)'],
+  // public/img(영상·포스터·자막)는 로그인 전 랜딩에서도 재생돼야 하므로 제외
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|icon.svg|img/).*)'],
 }

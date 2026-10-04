@@ -8,6 +8,7 @@ import { guessCategory, kakaoSearch, lookupIsbn } from '@/lib/book-lookup'
 import { requireCan } from '@/server/auth'
 import { s, type ActionResult } from '@/server/form'
 import { ownedLocation, ownedMember } from '@/server/queries'
+import { appendToShelf } from '@/server/labels'
 
 /**
  * 사진 판독 결과 일괄 등록. 사람이 확인 화면에서 고른 줄만 들어온다.
@@ -74,6 +75,7 @@ export async function importFromPhoto(_prev: ActionResult | null, form: FormData
     if (!existing) created++
     const copy = await prisma.copy.create({ data: { bookId: book.id, locationId, ownerId } })
     await prisma.copyMove.create({ data: { copyId: copy.id, toLocationId: locationId, movedById: admin.id } })
+    await prisma.$transaction((tx) => appendToShelf(tx, locationId, [copy.id]))
     addedCopies++
   }
   revalidatePath('/search')

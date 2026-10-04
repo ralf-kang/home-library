@@ -9,6 +9,7 @@ import { normalizeIsbn } from '@/lib/isbn'
 import { requireCan } from '@/server/auth'
 import { b, n, s, type ActionResult } from '@/server/form'
 import { ownedBook, ownedCopy, ownedLocation, ownedMember } from '@/server/queries'
+import { appendToShelf } from '@/server/labels'
 
 const COPY_STATUSES: CopyStatus[] = ['ON_SHELF', 'OUT_READING', 'LOANED', 'LOST', 'DISPOSED']
 
@@ -80,12 +81,15 @@ export async function createBook(_prev: ActionResult | null, form: FormData): Pr
       // needsReview: 사진 판독처럼 사람이 아직 확인하지 않은 등록이면 '확인 필요'로 표시
       const book =
         existing ?? (await tx.book.create({ data: { ...fields, householdId: hid, seriesId, needsReview: b(form, 'needsReview') } }))
+      const created: string[] = []
       for (let i = 0; i < copies; i++) {
         const copy = await tx.copy.create({ data: { bookId: book.id, locationId, ownerId, lendable } })
+        created.push(copy.id)
         if (locationId) {
           await tx.copyMove.create({ data: { copyId: copy.id, toLocationId: locationId, movedById: member.id } })
         }
       }
+      await appendToShelf(tx, locationId, created)
       return book.id
     })
   } catch (e) {
@@ -133,6 +137,7 @@ export async function addCopy(bookId: string, form: FormData) {
   await prisma.$transaction(async (tx) => {
     const copy = await tx.copy.create({ data: { bookId, locationId, ownerId, lendable: true } })
     if (locationId) await tx.copyMove.create({ data: { copyId: copy.id, toLocationId: locationId, movedById: member.id } })
+    await appendToShelf(tx, locationId, [copy.id])
   })
   revalidatePath(`/books/${bookId}`)
 }
@@ -153,6 +158,7 @@ export async function updateCopy(copyId: string, form: FormData) {
       await tx.copyMove.create({
         data: { copyId, fromLocationId: copy.locationId, toLocationId: locationId, movedById: member.id },
       })
+      await appendToShelf(tx, locationId, [copyId]) // 칸이 바뀌면 새 칸의 맨 뒤 순번
     }
   })
   revalidatePath(`/books/${copy.bookId}`)
@@ -176,17 +182,15 @@ export async function moveCopies(_prev: ActionResult | null, form: FormData): Pr
   if (!to) return { ok: false, error: '옮길 칸을 골라 주세요.' }
   if (!(await ownedLocation(hid, to))) return { ok: false, error: '없는 위치입니다.' }
   const copies = await prisma.copy.findMany({ where: { id: { in: copyIds }, book: { householdId: hid } } })
-  const ids = copies.map((c) => c.id)
-  await prisma.$transaction([
-    ...copies
-      .filter((c) => c.locationId !== to)
-      .map((c) =>
-        prisma.copyMove.create({
-          data: { copyId: c.id, fromLocationId: c.locationId, toLocationId: to, movedById: member.id },
-        }),
-      ),
-    prisma.copy.updateMany({ where: { id: { in: ids } }, data: { locationId: to } }),
-  ])
+  const moving = copies.filter((c) => c.locationId !== to)
+  await prisma.$transaction(async (tx) => {
+    for (const c of moving) {
+      await tx.copyMove.create({ data: { copyId: c.id, fromLocationId: c.locationId, toLocationId: to, movedById: member.id } })
+    }
+    await tx.copy.updateMany({ where: { id: { in: moving.map((c) => c.id) } }, data: { locationId: to } })
+    // 옮긴 책은 새 칸의 맨 뒤에 고른 순서대로 붙는다(라벨은 '다시 뽑을 라벨'이 됨)
+    await appendToShelf(tx, to, moving.map((c) => c.id))
+  })
   revalidatePath('/shelves')
   return { ok: true, message: `${copies.length}권을 옮겼습니다.` }
 }

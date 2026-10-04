@@ -301,26 +301,31 @@ enum CopyStatus {
 }
 
 model Copy {
-  id         String     @id @default(cuid())
+  id             String     @id @default(cuid())
   // 관리번호 HL-000123의 숫자 부분. 표시용 코드는 formatCopyCode()로 만든다.
-  seq        Int        @unique @default(autoincrement())
-  bookId     String     @map("book_id")
-  book       Book       @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  locationId String?    @map("location_id")
-  location   Location?  @relation(fields: [locationId], references: [id], onDelete: SetNull)
-  ownerId    String?    @map("owner_id")
-  owner      Member?    @relation("CopyOwner", fields: [ownerId], references: [id], onDelete: SetNull)
-  status     CopyStatus @default(ON_SHELF)
-  lendable   Boolean    @default(true)
-  note       String?
-  createdAt  DateTime   @default(now()) @map("created_at")
+  seq            Int        @unique @default(autoincrement())
+  bookId         String     @map("book_id")
+  book           Book       @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  locationId     String?    @map("location_id")
+  location       Location?  @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  ownerId        String?    @map("owner_id")
+  owner          Member?    @relation("CopyOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  status         CopyStatus @default(ON_SHELF)
+  lendable       Boolean    @default(true)
+  note           String?
+  // 칸 안에서 꽂는 순서(1부터). 청구기호 = 위치 전체코드 · 순번(예: LV-B2-S3 · 07). src/lib/labels.ts
+  shelfPos       Int?       @map("shelf_pos")
+  // 마지막으로 인쇄한 청구기호. 지금 계산한 값과 다르면 '다시 뽑을 라벨'
+  labelCode      String?    @map("label_code")
+  labelPrintedAt DateTime?  @map("label_printed_at")
+  createdAt      DateTime   @default(now()) @map("created_at")
 
   moves        CopyMove[]
   loans        Loan[]
   loanRequests LoanRequest[]
 
   @@index([bookId])
-  @@index([locationId])
+  @@index([locationId, shelfPos])
   @@map("copies")
 }
 

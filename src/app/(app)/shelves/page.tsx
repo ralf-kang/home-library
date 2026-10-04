@@ -117,6 +117,11 @@ export default async function ShelvesPage({ searchParams }: { searchParams: Prom
           </div>
           <div className="flex flex-wrap gap-2">
             <Link href="/customize" className="btn-ghost">서재 꾸미기</Link>
+            {canWrite && (
+              <Link href={selected && selected !== 'none' ? `/labels?scope=${selected}` : '/labels'} className="btn-ghost">
+                라벨 출력
+              </Link>
+            )}
             {canWrite && current?.kind === 'SHELF' && (
               <Link href={`/add/photo?loc=${current.id}`} className="btn-ghost">
                 이 칸 사진으로 등록

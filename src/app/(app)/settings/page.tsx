@@ -218,6 +218,9 @@ export default async function SettingsPage() {
           코드는 영문·숫자로 짧게(공간 LV/ST/KD, 책장 B1·B2, 칸 S1·S2 — 칸은 위에서부터). 전체 코드는 이어 붙여 LV-B2-S3처럼 표시됩니다.
           코드·이름을 바꿔도 책의 위치 연결은 유지됩니다.
         </p>
+        <p className="text-xs">
+          <a href="/labels?kind=shelves" className="underline">칸 이름표 뽑기</a> · <a href="/labels" className="underline">책 청구기호 라벨 뽑기</a>
+        </p>
         <LocationTree parentId={null} loc={loc} zones={zones} counts={counts} />
         <ActionForm action={saveLocation} className="flex flex-wrap items-center gap-2 border-t border-line pt-3" resetOnSuccess>
           <span className="text-sm text-muted">새 공간</span>

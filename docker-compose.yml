@@ -1,22 +1,43 @@
-# docker-compose.yml — home-library app 전용 (DB는 정의하지 않음)
+# docker-compose.yml — home-library (app + 전용 PostgreSQL)
 #
-# DB는 .20 서버의 공용 Docker 네트워크(shared-db-net)에 이미 떠 있는 통합 PostgreSQL
-# (shared-postgres)을 쓴다. shared-db-net/shared-postgres 자체의 기동·생성은 kang-util
-# (인프라 정본)이 관리하므로 이 compose로 DB를 올리지 말 것. 최초 1회 DB/계정 생성은
-# README.md "운영 배포(.20 서버)" 절의 SQL 참고.
+# .30(server2, macOS arm64) 운영용. DB는 이 스택 전용 postgres 컨테이너(db)이며
+# 데이터는 named volume home-library-pgdata에 보관된다. 호스트 포트로는 노출하지 않는다.
+# 같은 호스트의 다른 스택(financial-statement 등)과 섞이지 않도록 프로젝트명을 고정한다.
 #
 # 실행:
 #   docker compose up -d --build
+name: home-library
+
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: home-library-db
+    restart: unless-stopped
+    env_file:
+      # POSTGRES_USER / POSTGRES_DB / POSTGRES_PASSWORD (.env.example 참고)
+      - .env.local
+    environment:
+      TZ: Asia/Seoul
+    volumes:
+      - home-library-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
   app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: home-library
     restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
     env_file:
-      # DATABASE_URL(완성된 접속 문자열)/AUTH_SECRET/FAMILY_PIN/API 키 등.
-      # 실 서버에서는 NAS secrets에서 복사된 값으로 채워진다(.env.example 참고).
+      # DATABASE_URL(완성된 접속 문자열, 호스트는 db)/AUTH_SECRET/FAMILY_PIN/API 키 등.
       - .env.local
     environment:
       NODE_ENV: production
@@ -24,11 +45,8 @@ services:
       HOSTNAME: "0.0.0.0"
       TZ: Asia/Seoul
     ports:
-      # 외부 3503 → 내부 3000. vistor-report가 3502를 쓰므로 다음 번호로 잡았다.
-      # kang-util REGISTRY.md에 등록하고, 외부 접속이 필요하면 iptime 포트포워딩도 추가할 것.
-      - "3503:3000"
-    networks:
-      - shared-db-net
+      # 외부 3002 → 내부 3000. kang-util REGISTRY.md에 등록되어 있다.
+      - "3002:3000"
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 60s
@@ -36,6 +54,5 @@ services:
       retries: 3
       start_period: 30s
 
-networks:
-  shared-db-net:
-    external: true
+volumes:
+  home-library-pgdata:

@@ -36,5 +36,5 @@
   폼은 필드를 `key`로 다시 마운트한다(책 상세의 읽기 기록 폼 참고).
 
 ## 배포
-- `.20`(server1), 외부 포트 3503 → 내부 3000, DB는 `shared-db-net`의 `shared-postgres`. compose로 DB를 띄우지 말 것.
+- `.30`(server2, macOS arm64), 외부 포트 3002 → 내부 3000. DB는 compose의 전용 `db`(postgres:16-alpine, 볼륨 `home-library-pgdata`, 호스트 포트 미노출). 프로젝트명 `home-library` 고정(같은 호스트의 financial-statement 스택과 분리).
 - entrypoint는 `prisma db push`(마이그레이션 이력 없음) → seed → 서버. 정식 마이그레이션을 시작하면 `migrate deploy`로 전환.

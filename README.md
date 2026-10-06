@@ -50,23 +50,18 @@ npm run dev                   # http://localhost:3000
 
 비용 통제: 사진 판독은 칸 사진 1장당 1회 호출(긴 변 2,576px로 줄여 전송), 추천은 '추천 갱신'을 누를 때만(구성원별 10분에 1회) 호출합니다.
 
-## 운영 배포(.20 서버)
+## 운영 배포(.30 서버)
 
-배포 대상은 `deploy.target`(server1, 192.168.0.20). DB는 `shared-db-net`의 통합 PostgreSQL(`shared-postgres`)을 씁니다.
+배포 대상은 `deploy.target`(server2, ralfkang@192.168.0.30, macOS arm64). DB는 compose가 함께 띄우는 **전용 PostgreSQL**(`db` 서비스, 볼륨 `home-library-pgdata`)이며 호스트 포트로 노출하지 않습니다.
 
-1. **DB·계정 만들기(최초 1회)** — shared-postgres에 관리자 권한으로 접속해 실행:
-
-   ```sql
-   CREATE ROLE home_library_app LOGIN PASSWORD '<NAS secrets에 보관할 비밀번호>';
-   CREATE DATABASE home_library_db OWNER home_library_app;
-   ```
-
-2. **`.env.local` 작성** — `.env.example`을 복사해 채웁니다. `DATABASE_URL`은 완성된 문자열이어야 합니다
-   (`postgresql://home_library_app:<비밀번호>@shared-postgres:5432/home_library_db`).
-3. **기동** — `docker compose up -d --build`
-   - 엔트리포인트가 `prisma db push`(스키마 동기화) → `seed`(구성원이 없을 때만 첫 관리자·기본 구역·예시 공간 생성) → 서버 시작 순으로 실행합니다.
-   - 포트: 외부 **3503** → 내부 3000. kang-util `REGISTRY.md`에 등록하세요.
-4. **확인** — `curl http://192.168.0.20:3503/api/health` → `{"ok":true,...}`
+1. **클론** — `~/projects/home-library`에 `main`을 clone.
+2. **`.env.local` 작성** — `.env.example`을 복사해 채웁니다(`chmod 600`). `POSTGRES_PASSWORD`와 `DATABASE_URL`의 비밀번호는 같아야 하고,
+   `DATABASE_URL`은 완성된 문자열이어야 합니다(`postgresql://home_library_app:<비밀번호>@db:5432/home_library_db`).
+   DB·계정은 db 컨테이너가 최초 기동 때 `POSTGRES_USER`/`POSTGRES_DB`로 자동 생성합니다.
+3. **기동** — `docker compose up -d --build` (arm64 네이티브 빌드)
+   - db가 healthy가 된 뒤 app이 시작하고, 엔트리포인트가 `prisma db push`(스키마 동기화) → `seed`(구성원이 없을 때만 첫 관리자·기본 구역·예시 공간 생성) → 서버 시작 순으로 실행합니다.
+   - 포트: 외부 **3002** → 내부 3000. kang-util `REGISTRY.md`에 등록되어 있습니다. 컨테이너는 `restart: unless-stopped`입니다.
+4. **확인** — `curl http://192.168.0.30:3002/api/health` → `{"ok":true,...}`
 5. **첫 로그인** — `SEED_ADMIN_NAME` 구성원 + `FAMILY_PIN`. 설정 화면에서 가족 구성원·구역·책장/칸을 만드세요.
 
 ### 접속 범위와 HTTPS
@@ -76,10 +71,10 @@ npm run dev                   # http://localhost:3000
 
 ### 백업
 
-통합 PostgreSQL의 정기 백업을 따릅니다. 수동 백업이 필요하면:
+전용 DB 볼륨(`home-library-pgdata`)에 자동 백업은 없습니다. 수동 백업:
 
 ```bash
-docker exec shared-postgres pg_dump -U home_library_app -Fc home_library_db > home_library_$(date +%F).dump
+docker exec home-library-db pg_dump -U home_library_app -Fc home_library_db > home_library_$(date +%F).dump
 ```
 
 설정 화면의 'CSV 내려받기'로 엑셀용 장서 목록도 받을 수 있습니다.

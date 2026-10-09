@@ -1,0 +1,67 @@
+# CI — 단계 로직은 ci/*.sh 에 있고, 여기서는 순서·트리거·실행 환경만 정한다.
+# (운영 세계의 Jenkinsfile 도 같은 ci/*.sh 를 부른다)
+name: ci
+
+on:
+  pull_request:
+  push:
+    # main 과 통합 브랜치(feat/platform, main 에 merge 되기 전까지)는 이미지까지, ci/** 는 검증만
+    branches: [main, feat/platform, 'ci/**']
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: verify (lint · typecheck · test · build)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:   # 통합 테스트용 일회성 DB — 작업이 끝나면 사라진다
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: hl_appearance_check_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      APPEARANCE_TEST_DATABASE_URL: postgresql://postgres:ci@localhost:5432/hl_appearance_check_ci
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: ci/verify.sh install
+      - run: ci/verify.sh lint
+      - run: ci/verify.sh typecheck
+      - run: ci/verify.sh test
+      - run: ci/verify.sh build
+
+  image:
+    name: image (build once · scan · push to Harbor)
+    needs: verify
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feat/platform')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      IMAGE: harbor.ralfkang.synology.me/hl-test/home-library
+      TAG: ${{ github.sha }}
+      HARBOR_USERNAME: ${{ secrets.HARBOR_USERNAME }}
+      HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: ci/image.sh
+      - name: summary
+        if: always()
+        run: |
+          {
+            echo "### image"
+            echo "- tag: \`$IMAGE:$TAG\`"
+            [ -f image-digest.txt ] && echo "- digest: \`$(cat image-digest.txt)\`" || echo "- push 안 함 (비밀값 미등록 또는 실패)"
+          } >> "$GITHUB_STEP_SUMMARY"

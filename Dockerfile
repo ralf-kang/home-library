@@ -1,6 +1,6 @@
 FROM node:24-slim AS base
 # Debian slim: Prisma가 OpenSSL을 탐지할 수 있도록 설치
-RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get upgrade -y && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # 의존성 설치 단계
 FROM base AS deps
@@ -33,7 +33,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Debian slim: OpenSSL 설치 (Prisma 엔진 런타임 의존성)
-RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get upgrade -y && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd --system --gid 1001 nodejs && \
     useradd --system --uid 1001 --gid nodejs nextjs

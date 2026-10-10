@@ -49,6 +49,9 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feat/platform')
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    outputs:
+      pushed: ${{ steps.result.outputs.pushed }}
+      digest: ${{ steps.result.outputs.digest }}
     env:
       IMAGE: harbor.ralfkang.synology.me/hl-test/home-library
       TAG: ${{ github.sha }}
@@ -57,6 +60,13 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: ci/image.sh
+      - name: result   # 실제로 Harbor 에 올라갔을 때만 다음 단계(promote)가 돈다
+        id: result
+        run: |
+          if [ -f image-digest.txt ]; then
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
+            echo "digest=$(cat image-digest.txt)" >> "$GITHUB_OUTPUT"
+          fi
       - name: summary
         if: always()
         run: |
@@ -65,3 +75,20 @@ jobs:
             echo "- tag: \`$IMAGE:$TAG\`"
             [ -f image-digest.txt ] && echo "- digest: \`$(cat image-digest.txt)\`" || echo "- push 안 함 (비밀값 미등록 또는 실패)"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  promote:
+    name: promote (gitops 저장소에 새 이미지 태그 커밋 → Argo CD 가 배포)
+    needs: image
+    if: needs.image.outputs.pushed == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    concurrency:
+      group: promote-gitops   # gitops 저장소에 동시에 쓰지 않는다
+      cancel-in-progress: false
+    env:
+      TAG: ${{ github.sha }}
+      IMAGE_DIGEST: ${{ needs.image.outputs.digest }}
+      GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: ci/promote.sh

@@ -4,19 +4,19 @@
 #   TAG=<git sha> GITOPS_TOKEN=<PAT> ci/promote.sh            # 커밋 + push
 #   TAG=<git sha> DRY_RUN=1 GITOPS_TOKEN=<PAT> ci/promote.sh  # 바뀔 내용만 보고 push 안 함
 #
-# 하는 일은 딱 두 줄 수정: overlays/test/kustomization.yaml 의 images.newTag, APP_VERSION.
+# 하는 일은 딱 두 줄 수정: overlays/docker-desktop/kustomization.yaml 의 images.newTag, APP_VERSION.
 # 배포 자체는 Argo CD 가 이 저장소를 보다가 한다 — 여기서는 클러스터에 접속하지 않는다(사설망이라 접속할 수도 없다).
 #
 # 환경변수
 #   TAG            필수. 이미지 태그(= 커밋 SHA 40자)
 #   GITOPS_TOKEN   gitops 저장소 쓰기 권한 PAT. 없으면 경고만 하고 정상 종료(비밀값 등록 전에도 CI 가 깨지지 않게)
 #   GITOPS_REPO    기본 ralf-kang/home-library-gitops
-#   OVERLAY        기본 apps/home-library/overlays/test
+#   OVERLAY        기본 apps/home-library/overlays/docker-desktop (인터넷망 시연 환경 — 이 PC 의 Docker Desktop Kubernetes)
 #   IMAGE_DIGEST   있으면 커밋 메시지에 기록
 set -euo pipefail
 : "${TAG:?TAG 필요 (git sha)}"
 GITOPS_REPO="${GITOPS_REPO:-ralf-kang/home-library-gitops}"
-OVERLAY="${OVERLAY:-apps/home-library/overlays/test}"
+OVERLAY="${OVERLAY:-apps/home-library/overlays/docker-desktop}"
 SHORT="${TAG:0:7}"
 
 if [ -z "${GITOPS_TOKEN:-}" ]; then

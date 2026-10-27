@@ -1,0 +1,300 @@
+[
+  {
+    "id": "shelves-empty-first-book",
+    "file": "illustrations/shelves-empty-first-book.svg",
+    "type": "svg",
+    "width": 480,
+    "height": 320,
+    "bytes": 1105,
+    "pages": [
+      "/shelves",
+      "/dashboard"
+    ],
+    "placement": "장서가 0권일 때만. 첫 책 등록 CTA 위 240×160px",
+    "alt": "책장에 첫 책을 등록하는 그림",
+    "objectFit": "contain",
+    "motion": null,
+    "fallback": null,
+    "origin": "original editable SVG, adapted to existing icon.svg palette"
+  },
+  {
+    "id": "search-empty-discovery",
+    "file": "illustrations/search-empty-discovery.svg",
+    "type": "svg",
+    "width": 480,
+    "height": 320,
+    "bytes": 867,
+    "pages": [
+      "/search",
+      "/neighborhood"
+    ],
+    "placement": "검색 조건에 맞는 결과가 없을 때. 오류/로딩과 구분",
+    "alt": "책 위의 돋보기 그림",
+    "objectFit": "contain",
+    "motion": null,
+    "fallback": null,
+    "origin": "original editable SVG, adapted to existing icon.svg palette"
+  },
+  {
+    "id": "onboarding-create-library",
+    "file": "illustrations/onboarding-create-library.svg",
+    "type": "svg",
+    "width": 480,
+    "height": 320,
+    "bytes": 1178,
+    "pages": [
+      "/onboarding",
+      "/#how",
+      "/pricing"
+    ],
+    "placement": "서재 생성 폼 위 180×120px / 사용 방법 1단계",
+    "alt": "집 안에 작은 책장을 만드는 그림",
+    "objectFit": "contain",
+    "motion": null,
+    "fallback": null,
+    "origin": "original editable SVG, adapted to existing icon.svg palette"
+  },
+  {
+    "id": "invite-family-circle",
+    "file": "illustrations/invite-family-circle.svg",
+    "type": "svg",
+    "width": 480,
+    "height": 320,
+    "bytes": 955,
+    "pages": [
+      "/invite/[token]",
+      "/settings",
+      "/#how"
+    ],
+    "placement": "유효한 초대 화면/가족 초대 안내. 만료·권한 오류에는 사용하지 않음",
+    "alt": "책을 중심으로 연결된 가족 구성원을 나타내는 그림",
+    "objectFit": "contain",
+    "motion": null,
+    "fallback": null,
+    "origin": "original editable SVG, adapted to existing icon.svg palette"
+  },
+  {
+    "id": "reading-empty-journal",
+    "file": "illustrations/reading-empty-journal.svg",
+    "type": "svg",
+    "width": 480,
+    "height": 320,
+    "bytes": 863,
+    "pages": [
+      "/me",
+      "/recommend",
+      "/books/[id]"
+    ],
+    "placement": "기록이 없거나 추천 근거가 부족할 때. 사실과 다른 추천 결과를 표현하지 않음",
+    "alt": "독서 기록을 기다리는 노트와 연필 그림",
+    "objectFit": "contain",
+    "motion": null,
+    "fallback": null,
+    "origin": "original editable SVG, adapted to existing icon.svg palette"
+  },
+  {
+    "id": "book-cover-unavailable",
+    "file": "illustrations/book-cover-unavailable.svg",
+    "type": "svg",
+    "width": 240,
+    "height": 360,
+    "bytes": 574,
+    "pages": [
+      "/shelves",
+      "/search",
+      "/books/[id]",
+      "/recommend",
+      "/neighborhood"
+    ],
+    "placement": "실제 표지 URL이 없거나 로드 실패 시. 제목·저자는 옆의 HTML로 제공",
+    "alt": "표지가 없는 책",
+    "objectFit": "contain",
+    "motion": null,
+    "fallback": null,
+    "origin": "original editable SVG, adapted to existing icon.svg palette"
+  },
+  {
+    "id": "add-photo-scan-poster",
+    "file": "motion/add-photo-scan-poster.svg",
+    "type": "svg",
+    "width": 480,
+    "height": 320,
+    "bytes": 1478,
+    "pages": [
+      "/add/photo",
+      "/#how"
+    ],
+    "placement": "사진 판독 안내의 기본 정지 이미지",
+    "alt": "책장 한 칸의 책등을 정면에서 촬영하는 안내 그림",
+    "objectFit": "contain",
+    "motion": null,
+    "fallback": null,
+    "origin": "original editable SVG, adapted to existing icon.svg palette"
+  },
+  {
+    "id": "add-photo-scan-once",
+    "file": "motion/add-photo-scan-once.svg",
+    "type": "animated-svg",
+    "width": 480,
+    "height": 320,
+    "bytes": 1903,
+    "pages": [
+      "/add/photo",
+      "/#how"
+    ],
+    "placement": "사용자가 촬영 안내 보기를 누를 때 1회 재생. 실제 업로드 진행률로 사용 금지",
+    "alt": "책장 한 칸을 위에서 아래로 살펴보는 촬영 안내",
+    "objectFit": "contain",
+    "motion": {
+      "durationMs": 3600,
+      "iterations": 1,
+      "trigger": "user request",
+      "reducedMotion": "static poster"
+    },
+    "fallback": "motion/add-photo-scan-poster.svg",
+    "origin": "original editable SVG, adapted to existing icon.svg palette"
+  },
+  {
+    "id": "book-save-success-poster",
+    "file": "motion/book-save-success-poster.svg",
+    "type": "svg",
+    "width": 160,
+    "height": 160,
+    "bytes": 459,
+    "pages": [
+      "/add",
+      "/add/photo"
+    ],
+    "placement": "서버 저장 성공 확인 후, 텍스트와 함께",
+    "alt": "책 등록 완료",
+    "objectFit": "contain",
+    "motion": null,
+    "fallback": null,
+    "origin": "original editable SVG, adapted to existing icon.svg palette"
+  },
+  {
+    "id": "book-save-success-once",
+    "file": "motion/book-save-success-once.svg",
+    "type": "animated-svg",
+    "width": 160,
+    "height": 160,
+    "bytes": 677,
+    "pages": [
+      "/add",
+      "/add/photo"
+    ],
+    "placement": "실제 저장 성공 응답 이후 0.9초 1회. 저장 전에는 표시 금지",
+    "alt": "책 등록 완료",
+    "objectFit": "contain",
+    "motion": {
+      "durationMs": 900,
+      "iterations": 1,
+      "trigger": "confirmed server success",
+      "reducedMotion": "static poster"
+    },
+    "fallback": "motion/book-save-success-poster.svg",
+    "origin": "original editable SVG, adapted to existing icon.svg palette"
+  },
+  {
+    "id": "feature-dashboard",
+    "file": "icons/feature-dashboard.svg",
+    "type": "svg",
+    "width": 24,
+    "height": 24,
+    "bytes": 356,
+    "pages": [
+      "/#features"
+    ],
+    "placement": "기능 카드 아이콘 24~32px, 인접 제목이 있으면 alt=\"\"",
+    "alt": "취향 대시보드",
+    "objectFit": "contain",
+    "motion": null,
+    "fallback": null,
+    "origin": "original editable SVG, adapted to existing icon.svg palette"
+  },
+  {
+    "id": "feature-shelves",
+    "file": "icons/feature-shelves.svg",
+    "type": "svg",
+    "width": 24,
+    "height": 24,
+    "bytes": 369,
+    "pages": [
+      "/#features"
+    ],
+    "placement": "기능 카드 아이콘 24~32px, 인접 제목이 있으면 alt=\"\"",
+    "alt": "표지로 보는 서가",
+    "objectFit": "contain",
+    "motion": null,
+    "fallback": null,
+    "origin": "original editable SVG, adapted to existing icon.svg palette"
+  },
+  {
+    "id": "feature-search",
+    "file": "icons/feature-search.svg",
+    "type": "svg",
+    "width": 24,
+    "height": 24,
+    "bytes": 358,
+    "pages": [
+      "/#features"
+    ],
+    "placement": "기능 카드 아이콘 24~32px, 인접 제목이 있으면 alt=\"\"",
+    "alt": "내용 검색",
+    "objectFit": "contain",
+    "motion": null,
+    "fallback": null,
+    "origin": "original editable SVG, adapted to existing icon.svg palette"
+  },
+  {
+    "id": "feature-reading",
+    "file": "icons/feature-reading.svg",
+    "type": "svg",
+    "width": 24,
+    "height": 24,
+    "bytes": 365,
+    "pages": [
+      "/#features"
+    ],
+    "placement": "기능 카드 아이콘 24~32px, 인접 제목이 있으면 alt=\"\"",
+    "alt": "독서 기록",
+    "objectFit": "contain",
+    "motion": null,
+    "fallback": null,
+    "origin": "original editable SVG, adapted to existing icon.svg palette"
+  },
+  {
+    "id": "feature-recommend",
+    "file": "icons/feature-recommend.svg",
+    "type": "svg",
+    "width": 24,
+    "height": 24,
+    "bytes": 382,
+    "pages": [
+      "/#features"
+    ],
+    "placement": "기능 카드 아이콘 24~32px, 인접 제목이 있으면 alt=\"\"",
+    "alt": "도서 추천",
+    "objectFit": "contain",
+    "motion": null,
+    "fallback": null,
+    "origin": "original editable SVG, adapted to existing icon.svg palette"
+  },
+  {
+    "id": "feature-neighborhood",
+    "file": "icons/feature-neighborhood.svg",
+    "type": "svg",
+    "width": 24,
+    "height": 24,
+    "bytes": 389,
+    "pages": [
+      "/#features"
+    ],
+    "placement": "기능 카드 아이콘 24~32px, 인접 제목이 있으면 alt=\"\"",
+    "alt": "동네 공유 서가",
+    "objectFit": "contain",
+    "motion": null,
+    "fallback": null,
+    "origin": "original editable SVG, adapted to existing icon.svg palette"
+  }
+]

@@ -1,0 +1,383 @@
+{
+  "date": "2026-10-04",
+  "ffmpegVersion": "7.1-essentials_build-www.gyan.dev",
+  "checks": [
+    {
+      "name": "decode all frames: video/landing-family-library-story-720p.mp4",
+      "ok": true,
+      "detail": {
+        "frames": 288,
+        "distinctFrames": 288,
+        "metadata": {
+          "ffmpeg_version": "7.1-essentials_build-www.gyan.dev built with gcc 14.2.0 (Rev1, Built by MSYS2 project)",
+          "codec": "h264",
+          "pix_fmt": "yuv420p(tv, bt709/unknown/unknown, progressive)",
+          "fps": 24.0,
+          "source_size": [
+            1280,
+            720
+          ],
+          "size": [
+            1280,
+            720
+          ],
+          "rotate": 0,
+          "duration": 12.0
+        }
+      }
+    },
+    {
+      "name": "video dimensions: video/landing-family-library-story-720p.mp4",
+      "ok": true,
+      "detail": [
+        1280,
+        720
+      ]
+    },
+    {
+      "name": "frame rate and duration: video/landing-family-library-story-720p.mp4",
+      "ok": true,
+      "detail": {
+        "fps": 24.0,
+        "duration": 12.0
+      }
+    },
+    {
+      "name": "visible motion: video/landing-family-library-story-720p.mp4",
+      "ok": true,
+      "detail": {
+        "distinctDecodedFrames": 288
+      }
+    },
+    {
+      "name": "codec and pixel format: video/landing-family-library-story-720p.mp4",
+      "ok": true,
+      "detail": {
+        "expectedCodec": "h264",
+        "pixelFormat": "yuv420p"
+      }
+    },
+    {
+      "name": "silent track: video/landing-family-library-story-720p.mp4",
+      "ok": true,
+      "detail": "No audio stream"
+    },
+    {
+      "name": "video file budget: video/landing-family-library-story-720p.mp4",
+      "ok": true,
+      "detail": {
+        "bytes": 581426,
+        "budgetBytes": 4194304
+      }
+    },
+    {
+      "name": "MP4 fast start: video/landing-family-library-story-720p.mp4",
+      "ok": true,
+      "detail": {
+        "ftyp": 0,
+        "moov": 32,
+        "free": 4280,
+        "mdat": 4288
+      }
+    },
+    {
+      "name": "poster: video/landing-family-library-story-720p.mp4",
+      "ok": true,
+      "detail": "video/landing-family-library-story-poster.webp"
+    },
+    {
+      "name": "captions: video/landing-family-library-story-720p.mp4",
+      "ok": true,
+      "detail": "video/landing-family-library-story-ko.vtt"
+    },
+    {
+      "name": "transcript: video/landing-family-library-story-720p.mp4",
+      "ok": true,
+      "detail": "video/landing-family-library-story-transcript.txt"
+    },
+    {
+      "name": "timed captions: video/landing-family-library-story-720p.mp4",
+      "ok": true,
+      "detail": "3 cues cover 0–12 seconds"
+    },
+    {
+      "name": "decode all frames: video/landing-family-library-story-720p.webm",
+      "ok": true,
+      "detail": {
+        "frames": 288,
+        "distinctFrames": 288,
+        "metadata": {
+          "ffmpeg_version": "7.1-essentials_build-www.gyan.dev built with gcc 14.2.0 (Rev1, Built by MSYS2 project)",
+          "codec": "vp9",
+          "pix_fmt": "yuv420p(tv, bt709/unknown/unknown, progressive)",
+          "fps": 24.0,
+          "source_size": [
+            1280,
+            720
+          ],
+          "size": [
+            1280,
+            720
+          ],
+          "rotate": 0,
+          "duration": 12.0
+        }
+      }
+    },
+    {
+      "name": "video dimensions: video/landing-family-library-story-720p.webm",
+      "ok": true,
+      "detail": [
+        1280,
+        720
+      ]
+    },
+    {
+      "name": "frame rate and duration: video/landing-family-library-story-720p.webm",
+      "ok": true,
+      "detail": {
+        "fps": 24.0,
+        "duration": 12.0
+      }
+    },
+    {
+      "name": "visible motion: video/landing-family-library-story-720p.webm",
+      "ok": true,
+      "detail": {
+        "distinctDecodedFrames": 288
+      }
+    },
+    {
+      "name": "codec and pixel format: video/landing-family-library-story-720p.webm",
+      "ok": true,
+      "detail": {
+        "expectedCodec": "vp9",
+        "pixelFormat": "yuv420p"
+      }
+    },
+    {
+      "name": "silent track: video/landing-family-library-story-720p.webm",
+      "ok": true,
+      "detail": "No audio stream"
+    },
+    {
+      "name": "video file budget: video/landing-family-library-story-720p.webm",
+      "ok": true,
+      "detail": {
+        "bytes": 476710,
+        "budgetBytes": 4194304
+      }
+    },
+    {
+      "name": "poster: video/landing-family-library-story-720p.webm",
+      "ok": true,
+      "detail": "video/landing-family-library-story-poster.webp"
+    },
+    {
+      "name": "captions: video/landing-family-library-story-720p.webm",
+      "ok": true,
+      "detail": "video/landing-family-library-story-ko.vtt"
+    },
+    {
+      "name": "transcript: video/landing-family-library-story-720p.webm",
+      "ok": true,
+      "detail": "video/landing-family-library-story-transcript.txt"
+    },
+    {
+      "name": "timed captions: video/landing-family-library-story-720p.webm",
+      "ok": true,
+      "detail": "3 cues cover 0–12 seconds"
+    },
+    {
+      "name": "decode all frames: video/add-photo-three-step-guide-720p.mp4",
+      "ok": true,
+      "detail": {
+        "frames": 288,
+        "distinctFrames": 288,
+        "metadata": {
+          "ffmpeg_version": "7.1-essentials_build-www.gyan.dev built with gcc 14.2.0 (Rev1, Built by MSYS2 project)",
+          "codec": "h264",
+          "pix_fmt": "yuv420p(tv, bt709/unknown/unknown, progressive)",
+          "fps": 24.0,
+          "source_size": [
+            1280,
+            720
+          ],
+          "size": [
+            1280,
+            720
+          ],
+          "rotate": 0,
+          "duration": 12.0
+        }
+      }
+    },
+    {
+      "name": "video dimensions: video/add-photo-three-step-guide-720p.mp4",
+      "ok": true,
+      "detail": [
+        1280,
+        720
+      ]
+    },
+    {
+      "name": "frame rate and duration: video/add-photo-three-step-guide-720p.mp4",
+      "ok": true,
+      "detail": {
+        "fps": 24.0,
+        "duration": 12.0
+      }
+    },
+    {
+      "name": "visible motion: video/add-photo-three-step-guide-720p.mp4",
+      "ok": true,
+      "detail": {
+        "distinctDecodedFrames": 288
+      }
+    },
+    {
+      "name": "codec and pixel format: video/add-photo-three-step-guide-720p.mp4",
+      "ok": true,
+      "detail": {
+        "expectedCodec": "h264",
+        "pixelFormat": "yuv420p"
+      }
+    },
+    {
+      "name": "silent track: video/add-photo-three-step-guide-720p.mp4",
+      "ok": true,
+      "detail": "No audio stream"
+    },
+    {
+      "name": "video file budget: video/add-photo-three-step-guide-720p.mp4",
+      "ok": true,
+      "detail": {
+        "bytes": 166615,
+        "budgetBytes": 4194304
+      }
+    },
+    {
+      "name": "MP4 fast start: video/add-photo-three-step-guide-720p.mp4",
+      "ok": true,
+      "detail": {
+        "ftyp": 0,
+        "moov": 32,
+        "free": 4144,
+        "mdat": 4152
+      }
+    },
+    {
+      "name": "poster: video/add-photo-three-step-guide-720p.mp4",
+      "ok": true,
+      "detail": "video/add-photo-three-step-guide-poster.webp"
+    },
+    {
+      "name": "captions: video/add-photo-three-step-guide-720p.mp4",
+      "ok": true,
+      "detail": "video/add-photo-three-step-guide-ko.vtt"
+    },
+    {
+      "name": "transcript: video/add-photo-three-step-guide-720p.mp4",
+      "ok": true,
+      "detail": "video/add-photo-three-step-guide-transcript.txt"
+    },
+    {
+      "name": "timed captions: video/add-photo-three-step-guide-720p.mp4",
+      "ok": true,
+      "detail": "3 cues cover 0–12 seconds"
+    },
+    {
+      "name": "decode all frames: video/add-photo-three-step-guide-720p.webm",
+      "ok": true,
+      "detail": {
+        "frames": 288,
+        "distinctFrames": 288,
+        "metadata": {
+          "ffmpeg_version": "7.1-essentials_build-www.gyan.dev built with gcc 14.2.0 (Rev1, Built by MSYS2 project)",
+          "codec": "vp9",
+          "pix_fmt": "yuv420p(tv, bt709/unknown/unknown, progressive)",
+          "fps": 24.0,
+          "source_size": [
+            1280,
+            720
+          ],
+          "size": [
+            1280,
+            720
+          ],
+          "rotate": 0,
+          "duration": 12.0
+        }
+      }
+    },
+    {
+      "name": "video dimensions: video/add-photo-three-step-guide-720p.webm",
+      "ok": true,
+      "detail": [
+        1280,
+        720
+      ]
+    },
+    {
+      "name": "frame rate and duration: video/add-photo-three-step-guide-720p.webm",
+      "ok": true,
+      "detail": {
+        "fps": 24.0,
+        "duration": 12.0
+      }
+    },
+    {
+      "name": "visible motion: video/add-photo-three-step-guide-720p.webm",
+      "ok": true,
+      "detail": {
+        "distinctDecodedFrames": 288
+      }
+    },
+    {
+      "name": "codec and pixel format: video/add-photo-three-step-guide-720p.webm",
+      "ok": true,
+      "detail": {
+        "expectedCodec": "vp9",
+        "pixelFormat": "yuv420p"
+      }
+    },
+    {
+      "name": "silent track: video/add-photo-three-step-guide-720p.webm",
+      "ok": true,
+      "detail": "No audio stream"
+    },
+    {
+      "name": "video file budget: video/add-photo-three-step-guide-720p.webm",
+      "ok": true,
+      "detail": {
+        "bytes": 207930,
+        "budgetBytes": 4194304
+      }
+    },
+    {
+      "name": "poster: video/add-photo-three-step-guide-720p.webm",
+      "ok": true,
+      "detail": "video/add-photo-three-step-guide-poster.webp"
+    },
+    {
+      "name": "captions: video/add-photo-three-step-guide-720p.webm",
+      "ok": true,
+      "detail": "video/add-photo-three-step-guide-ko.vtt"
+    },
+    {
+      "name": "transcript: video/add-photo-three-step-guide-720p.webm",
+      "ok": true,
+      "detail": "video/add-photo-three-step-guide-transcript.txt"
+    },
+    {
+      "name": "timed captions: video/add-photo-three-step-guide-720p.webm",
+      "ok": true,
+      "detail": "3 cues cover 0–12 seconds"
+    }
+  ],
+  "allPassed": true,
+  "limitations": [
+    "Decoded with FFmpeg, including samples from delivered MP4 files; no connected browser was available for native playback and cross-browser UI verification.",
+    "Silent editorial montage and procedural vector animation, not live-action generated video or a screen recording."
+  ]
+}

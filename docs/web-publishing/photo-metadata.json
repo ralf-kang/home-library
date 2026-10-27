@@ -1,0 +1,86 @@
+[
+  {
+    "key": "landing-hero-family-reading",
+    "file": "photos/landing-hero-family-reading-768.webp",
+    "width": 768,
+    "height": 512,
+    "bytes": 52812
+  },
+  {
+    "key": "landing-hero-family-reading",
+    "file": "photos/landing-hero-family-reading-1536.webp",
+    "width": 1536,
+    "height": 1024,
+    "bytes": 132370
+  },
+  {
+    "key": "auth-reading-nook",
+    "file": "photos/auth-reading-nook-640.webp",
+    "width": 640,
+    "height": 800,
+    "bytes": 72470
+  },
+  {
+    "key": "auth-reading-nook",
+    "file": "photos/auth-reading-nook-1120.webp",
+    "width": 1120,
+    "height": 1400,
+    "bytes": 169846
+  },
+  {
+    "key": "neighborhood-book-sharing",
+    "file": "photos/neighborhood-book-sharing-768.webp",
+    "width": 768,
+    "height": 512,
+    "bytes": 49142
+  },
+  {
+    "key": "neighborhood-book-sharing",
+    "file": "photos/neighborhood-book-sharing-1536.webp",
+    "width": 1536,
+    "height": 1024,
+    "bytes": 130010
+  },
+  {
+    "key": "me-reading-journal-desk",
+    "file": "photos/me-reading-journal-desk-768.webp",
+    "width": 768,
+    "height": 432,
+    "bytes": 49304
+  },
+  {
+    "key": "me-reading-journal-desk",
+    "file": "photos/me-reading-journal-desk-1536.webp",
+    "width": 1536,
+    "height": 864,
+    "bytes": 140138
+  },
+  {
+    "key": "recommend-unread-books-selection",
+    "file": "photos/recommend-unread-books-selection-768.webp",
+    "width": 768,
+    "height": 432,
+    "bytes": 32802
+  },
+  {
+    "key": "recommend-unread-books-selection",
+    "file": "photos/recommend-unread-books-selection-1536.webp",
+    "width": 1536,
+    "height": 864,
+    "bytes": 90896
+  },
+  {
+    "key": "add-photo-shelf-framing",
+    "file": "photos/add-photo-shelf-framing-768.webp",
+    "width": 768,
+    "height": 432,
+    "bytes": 25562
+  },
+  {
+    "key": "add-photo-shelf-framing",
+    "file": "photos/add-photo-shelf-framing-1536.webp",
+    "width": 1536,
+    "height": 864,
+    "bytes": 136176
+  }
+]

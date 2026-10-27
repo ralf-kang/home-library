@@ -1,0 +1,152 @@
+[
+  {
+    "id": "landing-family-library-story-720p-mp4",
+    "file": "video/landing-family-library-story-720p.mp4",
+    "type": "mp4",
+    "width": 1280,
+    "height": 720,
+    "bytes": 581426,
+    "pages": [
+      "/",
+      "/#how"
+    ],
+    "placement": "랜딩 사용 방법 근처의 사용자 재생형 소개 영상",
+    "alt": "가족 독서, 독서 기록, 이웃 책 나눔을 소개하는 12초 사진 편집 영상",
+    "objectFit": "contain",
+    "origin": "AI-generated still photos edited into a video; original typography and camera pans",
+    "durationSeconds": 12,
+    "fps": 24,
+    "audio": false,
+    "poster": "video/landing-family-library-story-poster.webp",
+    "captions": "video/landing-family-library-story-ko.vtt",
+    "transcript": "video/landing-family-library-story-transcript.txt",
+    "motion": {
+      "durationMs": 12000,
+      "iterations": 1,
+      "trigger": "user controls",
+      "reducedMotion": "poster until explicit play"
+    },
+    "codec": "h264"
+  },
+  {
+    "id": "landing-family-library-story-720p-webm",
+    "file": "video/landing-family-library-story-720p.webm",
+    "type": "webm",
+    "width": 1280,
+    "height": 720,
+    "bytes": 476710,
+    "pages": [
+      "/",
+      "/#how"
+    ],
+    "placement": "랜딩 사용 방법 근처의 사용자 재생형 소개 영상",
+    "alt": "가족 독서, 독서 기록, 이웃 책 나눔을 소개하는 12초 사진 편집 영상",
+    "objectFit": "contain",
+    "origin": "AI-generated still photos edited into a video; original typography and camera pans",
+    "durationSeconds": 12,
+    "fps": 24,
+    "audio": false,
+    "poster": "video/landing-family-library-story-poster.webp",
+    "captions": "video/landing-family-library-story-ko.vtt",
+    "transcript": "video/landing-family-library-story-transcript.txt",
+    "motion": {
+      "durationMs": 12000,
+      "iterations": 1,
+      "trigger": "user controls",
+      "reducedMotion": "poster until explicit play"
+    },
+    "codec": "vp9"
+  },
+  {
+    "id": "landing-family-library-story-poster",
+    "file": "video/landing-family-library-story-poster.webp",
+    "type": "webp",
+    "width": 1280,
+    "height": 720,
+    "bytes": 62812,
+    "pages": [
+      "/",
+      "/#how"
+    ],
+    "placement": "영상 재생 전 포스터 및 동작 줄이기 대체 이미지",
+    "alt": "가족 독서, 독서 기록, 이웃 책 나눔을 소개하는 12초 사진 편집 영상",
+    "objectFit": "contain",
+    "origin": "AI-generated still photos edited into a video; original typography and camera pans",
+    "motion": null
+  },
+  {
+    "id": "add-photo-three-step-guide-720p-mp4",
+    "file": "video/add-photo-three-step-guide-720p.mp4",
+    "type": "mp4",
+    "width": 1280,
+    "height": 720,
+    "bytes": 166615,
+    "pages": [
+      "/add/photo",
+      "/#how"
+    ],
+    "placement": "사진 업로드 전 촬영·검토·등록 안내, 사용자 재생",
+    "alt": "책장 촬영, 판독 목록 확인, 등록의 세 단계를 설명하는 12초 모션그래픽",
+    "objectFit": "contain",
+    "origin": "Original vector motion graphics; procedural SVG frames",
+    "durationSeconds": 12,
+    "fps": 24,
+    "audio": false,
+    "poster": "video/add-photo-three-step-guide-poster.webp",
+    "captions": "video/add-photo-three-step-guide-ko.vtt",
+    "transcript": "video/add-photo-three-step-guide-transcript.txt",
+    "motion": {
+      "durationMs": 12000,
+      "iterations": 1,
+      "trigger": "user controls",
+      "reducedMotion": "poster until explicit play"
+    },
+    "codec": "h264"
+  },
+  {
+    "id": "add-photo-three-step-guide-720p-webm",
+    "file": "video/add-photo-three-step-guide-720p.webm",
+    "type": "webm",
+    "width": 1280,
+    "height": 720,
+    "bytes": 207930,
+    "pages": [
+      "/add/photo",
+      "/#how"
+    ],
+    "placement": "사진 업로드 전 촬영·검토·등록 안내, 사용자 재생",
+    "alt": "책장 촬영, 판독 목록 확인, 등록의 세 단계를 설명하는 12초 모션그래픽",
+    "objectFit": "contain",
+    "origin": "Original vector motion graphics; procedural SVG frames",
+    "durationSeconds": 12,
+    "fps": 24,
+    "audio": false,
+    "poster": "video/add-photo-three-step-guide-poster.webp",
+    "captions": "video/add-photo-three-step-guide-ko.vtt",
+    "transcript": "video/add-photo-three-step-guide-transcript.txt",
+    "motion": {
+      "durationMs": 12000,
+      "iterations": 1,
+      "trigger": "user controls",
+      "reducedMotion": "poster until explicit play"
+    },
+    "codec": "vp9"
+  },
+  {
+    "id": "add-photo-three-step-guide-poster",
+    "file": "video/add-photo-three-step-guide-poster.webp",
+    "type": "webp",
+    "width": 1280,
+    "height": 720,
+    "bytes": 21574,
+    "pages": [
+      "/add/photo",
+      "/#how"
+    ],
+    "placement": "영상 재생 전 포스터 및 동작 줄이기 대체 이미지",
+    "alt": "책장 촬영, 판독 목록 확인, 등록의 세 단계를 설명하는 12초 모션그래픽",
+    "objectFit": "contain",
+    "origin": "Original vector motion graphics; procedural SVG frames",
+    "motion": null
+  }
+]

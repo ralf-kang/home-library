@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db'
 import { COPY_STATUS_LABEL, formatCopyCode } from '@/lib/format'
-import { requireAdmin } from '@/server/auth'
+import { requireCan } from '@/server/auth'
 import { loadLocations } from '@/server/queries'
 
 export const dynamic = 'force-dynamic'
@@ -14,9 +14,10 @@ function cell(v: unknown): string {
 
 /** 소장본 단위 장서 목록 CSV(엑셀 한글 깨짐 방지 BOM 포함). */
 export async function GET() {
-  await requireAdmin()
-  const loc = await loadLocations()
+  const { household } = await requireCan('book.write')
+  const loc = await loadLocations(household.id)
   const copies = await prisma.copy.findMany({
+    where: { book: { householdId: household.id } },
     include: { book: { include: { series: true } }, owner: true },
     orderBy: { seq: 'asc' },
   })

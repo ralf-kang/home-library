@@ -1,5 +1,6 @@
 /**
- * 로컬 개발·시연용 데이터(운영에서 실행 금지 — 실행하면 기존 데이터를 지운다).
+ * 로컬 개발·시연용 데이터(운영에서 실행 금지). '데모 서재' 가구만 지우고 다시 만든다(다른 가구는 건드리지 않음).
+ * 테스트 로그인(ENABLE_DEV_LOGIN=1)으로 dad@demo.local / mom@demo.local 계정에 들어갈 수 있다.
  * 기획서 부록 '사진 판독 도서 목록'의 일부 책으로 서가·읽기 기록·독후감을 채운다.
  *   npm run db:seed:demo
  */
@@ -7,6 +8,7 @@ import { PrismaClient, type AgeGroup, type ReadingStatus } from '@prisma/client'
 import { toChosung } from '../src/lib/chosung'
 
 const prisma = new PrismaClient()
+const DEMO_NAME = '데모 서재'
 
 if (process.env.NODE_ENV === 'production' && process.env.ALLOW_DEMO_SEED !== '1') {
   console.error('운영 환경에서는 demo seed를 실행할 수 없습니다.')
@@ -63,29 +65,23 @@ const BOOKS: B[] = [
 ]
 
 async function main() {
-  // 초기화(데모 전용)
-  await prisma.$transaction([
-    prisma.recommendationRun.deleteMany(),
-    prisma.note.deleteMany(),
-    prisma.reading.deleteMany(),
-    prisma.wishItem.deleteMany(),
-    prisma.loan.deleteMany(),
-    prisma.copyMove.deleteMany(),
-    prisma.copy.deleteMany(),
-    prisma.book.deleteMany(),
-    prisma.series.deleteMany(),
-    prisma.location.deleteMany({ where: { kind: 'SHELF' } }),
-    prisma.location.deleteMany({ where: { kind: 'BOOKCASE' } }),
-    prisma.location.deleteMany(),
-    prisma.zone.deleteMany(),
-    prisma.member.deleteMany(),
-  ])
+  // 초기화(데모 가구만). 위치 트리는 onDelete: Restrict 라 칸 → 책장 → 공간 순으로 지운 뒤 가구를 지운다.
+  for (const old of await prisma.household.findMany({ where: { name: DEMO_NAME } })) {
+    await prisma.book.deleteMany({ where: { householdId: old.id } })
+    for (const kind of ['SHELF', 'BOOKCASE', 'ROOM'] as const) await prisma.location.deleteMany({ where: { householdId: old.id, kind } })
+    await prisma.household.delete({ where: { id: old.id } })
+  }
+  const devUser = (email: string, name: string) =>
+    prisma.user.upsert({ where: { googleSub: `dev:${email}` }, create: { googleSub: `dev:${email}`, email, name }, update: {} })
+  const [uDad, uMom] = await Promise.all([devUser('dad@demo.local', '아빠'), devUser('mom@demo.local', '엄마')])
+  const hh = await prisma.household.create({ data: { name: DEMO_NAME, regionName: '경기도 성남시 분당구' } })
+  const hid = hh.id
 
-  const dad = await prisma.member.create({ data: { name: '아빠', isAdmin: true, sortOrder: 0 } })
-  const mom = await prisma.member.create({ data: { name: '엄마', isAdmin: true, sortOrder: 1 } })
-  const kid = await prisma.member.create({ data: { name: '아이', role: 'CHILD', sortOrder: 2 } })
+  const dad = await prisma.member.create({ data: { householdId: hid, userId: uDad.id, name: '아빠', role: 'OWNER', sortOrder: 0 } })
+  const mom = await prisma.member.create({ data: { householdId: hid, userId: uMom.id, name: '엄마', role: 'ADMIN', sortOrder: 1 } })
+  const kid = await prisma.member.create({ data: { householdId: hid, name: '아이', role: 'CHILD', ageGroup: 'CHILD', sortOrder: 2 } })
 
-  const zone = async (name: string, color: string) => prisma.zone.create({ data: { name, color } })
+  const zone = async (name: string, color: string) => prisma.zone.create({ data: { householdId: hid, name, color } })
   const zClassic = await zone('고전', '#9acd32')
   const zNovel = await zone('소설', '#e8a33d')
   const zHum = await zone('인문', '#8a5a44')
@@ -96,12 +92,12 @@ async function main() {
 
   const shelfIds = new Map<string, string>()
   const room = async (code: string, name: string, cases: { code: string; name: string; shelves: (string | null)[] }[]) => {
-    const r = await prisma.location.create({ data: { kind: 'ROOM', code, name } })
+    const r = await prisma.location.create({ data: { householdId: hid, kind: 'ROOM', code, name } })
     for (const [ci, c] of cases.entries()) {
-      const bc = await prisma.location.create({ data: { kind: 'BOOKCASE', code: c.code, name: c.name, parentId: r.id, sortOrder: ci } })
+      const bc = await prisma.location.create({ data: { householdId: hid, kind: 'BOOKCASE', code: c.code, name: c.name, parentId: r.id, sortOrder: ci } })
       for (const [si, zoneId] of c.shelves.entries()) {
         const sh = await prisma.location.create({
-          data: { kind: 'SHELF', code: `S${si + 1}`, name: `${si + 1}칸`, parentId: bc.id, zoneId, sortOrder: si + 1 },
+          data: { householdId: hid, kind: 'SHELF', code: `S${si + 1}`, name: `${si + 1}칸`, parentId: bc.id, zoneId, sortOrder: si + 1 },
         })
         shelfIds.set(`${code}-${c.code}-S${si + 1}`, sh.id)
       }
@@ -120,10 +116,15 @@ async function main() {
   const books = new Map<string, string>()
   for (const [title, authors, publisher, category, shelf, extra] of BOOKS) {
     const series = extra?.series
-      ? await prisma.series.upsert({ where: { name: extra.series }, create: { name: extra.series }, update: {} })
+      ? await prisma.series.upsert({
+          where: { householdId_name: { householdId: hid, name: extra.series } },
+          create: { householdId: hid, name: extra.series },
+          update: {},
+        })
       : null
     const book = await prisma.book.create({
       data: {
+        householdId: hid,
         title,
         titleChosung: toChosung(title),
         authors,
@@ -131,7 +132,7 @@ async function main() {
         category,
         isbn13: extra?.isbn ?? null,
         ageGroup: extra?.age ?? 'ADULT',
-        seriesId: series?.id,
+        seriesId: series?.id ?? null,
         volumeNo: extra?.vol ?? null,
       },
     })
@@ -175,7 +176,7 @@ async function main() {
 
   await prisma.wishItem.create({ data: { memberId: dad.id, title: '21세기를 위한 21가지 제언', authors: '유발 하라리', publisher: '김영사', reason: '좋아하신 유발 하라리의 다른 책', source: 'RECOMMEND' } })
 
-  console.log(`[demo] 구성원 3명, 책 ${BOOKS.length}권, 칸 ${shelfIds.size}개를 만들었습니다. 로그인 PIN은 .env의 FAMILY_PIN.`)
+  console.log(`[demo] 구성원 3명, 책 ${BOOKS.length}권, 칸 ${shelfIds.size}개를 만들었습니다. 테스트 로그인: dad@demo.local / mom@demo.local`)
 }
 
 main()

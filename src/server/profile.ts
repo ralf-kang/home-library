@@ -6,11 +6,13 @@ import { prisma } from '@/lib/db'
  *  - 분야 점수 = Σ(완독 1권당 별점, 별점 없으면 3) × 최근 12개월이면 2배
  *  - 저자 점수도 같은 방식
  *  - '사 놓고 안 읽은 비율' = 소유한 책 중 읽음 기록이 없는 비율
+ *
+ * hid: 가구 id(테넌트 경계). memberId 는 호출하는 쪽이 같은 가구 소속인지 확인한 값이어야 한다.
  */
-export async function buildProfile(memberId: string) {
+export async function buildProfile(hid: string, memberId: string) {
   const yearAgo = new Date(Date.now() - 365 * 24 * 3600 * 1000)
   const readings = await prisma.reading.findMany({
-    where: { memberId },
+    where: { memberId, book: { householdId: hid } },
     include: { book: { select: { id: true, title: true, authors: true, category: true, publisher: true, isbn13: true } } },
   })
   const categoryScore = new Map<string, number>()
@@ -38,9 +40,10 @@ export async function buildProfile(memberId: string) {
     }
   }
 
-  const owned = await prisma.book.count({ where: { copies: { some: { ownerId: memberId } } } })
+  const owned = await prisma.book.count({ where: { householdId: hid, copies: { some: { ownerId: memberId } } } })
   const ownedUnread = await prisma.book.count({
     where: {
+      householdId: hid,
       copies: { some: { ownerId: memberId } },
       readings: { none: { memberId, status: { in: ['READING', 'DONE', 'DROPPED', 'REFERENCE'] } } },
     },

@@ -26,4 +26,5 @@ export function b(form: FormData, key: string): boolean {
   return v === 'on' || v === 'true' || v === '1'
 }
 
-export type ActionResult = { ok: true; message?: string } | { ok: false; error: string }
+// link: 초대 링크처럼 사용자가 복사해 가야 하는 값(ActionForm이 복사 버튼과 함께 보여 준다)
+export type ActionResult = { ok: true; message?: string; link?: string } | { ok: false; error: string }

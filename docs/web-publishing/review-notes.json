@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-04",
+  "timezone": "Asia/Seoul",
+  "serviceUrl": "http://192.168.100.100:30503/",
+  "observed": {
+    "method": "PowerShell Invoke-WebRequest, server-rendered HTML",
+    "status": 200,
+    "title": "우리집 서재",
+    "heading": "우리 집 책장을 가족의 도서관으로",
+    "sections": ["취지", "사용 방법 3단계", "주요 기능 6개", "가족과 이웃 권한 비교", "FAQ"],
+    "browserInventory": "No enabled apps or browsers; visual live-site inspection unavailable"
+  },
+  "sourceReview": [
+    "src/app/page.tsx",
+    "src/app/globals.css",
+    "src/components/SiteChrome.tsx",
+    "src/app/icon.svg",
+    "src/app/(app) page headings, empty states and route structure",
+    "src/app/(app)/add/photo/page.tsx",
+    "src/app/login/page.tsx",
+    "src/app/onboarding/page.tsx",
+    "src/app/invite/[token]/page.tsx",
+    "README.md",
+    "CLAUDE.md",
+    "package.json"
+  ],
+  "followupProbe": "Optional Python urllib multi-route probe encountered ConnectionRefusedError; no authenticated route verification claimed.",
+  "environment": "Existing home-library test session was already running. No VM state changes, new resources, app deployment or database changes made.",
+  "delivery": "New src/img assets and docs/web-publishing handoff only; existing working-tree changes preserved."
+}

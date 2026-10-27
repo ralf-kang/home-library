@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import type { WishStatus } from '@prisma/client'
 import ActionForm from '@/components/ActionForm'
+import { Illustration, Photo } from '@/components/Art'
 import BookCover from '@/components/BookCover'
 import ConfirmButton from '@/components/ConfirmButton'
+import PurchaseLinks from '@/components/PurchaseLinks'
 import { prisma } from '@/lib/db'
 import { WISH_STATUS_LABEL, formatDate } from '@/lib/format'
 import { isClaudeConfigured } from '@/lib/claude'
@@ -16,15 +18,16 @@ import type { RecItem } from '@/server/recommend'
 const SOURCE_LABEL: Record<RecItem['source'], string> = { author: '좋아한 저자', library: '도서관 대출 데이터', series: '시리즈 빈 권' }
 
 export default async function RecommendPage() {
-  const me = await requireMember()
-  const profile = await buildProfile(me.id)
+  const { member: me, household } = await requireMember()
+  const profile = await buildProfile(household.id, me.id)
   const topCats = profile.topCategories.slice(0, 3).map(([c]) => c)
 
   // "사기 전에, 이 책부터": 취향 상위 분야(기록이 없으면 전체)에서 집에 있는데 아직 안 읽은 책
   const ownedUnread = await prisma.book.findMany({
     where: {
+      householdId: household.id,
       copies: { some: { status: { in: ['ON_SHELF', 'OUT_READING'] } } },
-      ageGroup: me.role === 'CHILD' ? 'CHILD' : 'ADULT',
+      ageGroup: me.ageGroup,
       readings: { none: { memberId: me.id } },
       ...(topCats.length ? { category: { in: topCats } } : {}),
     },
@@ -44,10 +47,18 @@ export default async function RecommendPage() {
       <h1 className="text-xl font-bold">{me.name}님을 위한 추천</h1>
 
       <section className="card space-y-2">
-        <h2 className="font-semibold">사기 전에, 이 책부터</h2>
-        <p className="text-sm text-muted">
-          {topCats.length ? `자주 읽는 분야(${topCats.join(', ')}) 중` : '집에 있는 책 중'} 아직 안 읽은 책입니다.
-        </p>
+        <div className="flex items-center gap-4">
+          <div className="min-w-0 flex-1">
+            <h2 className="font-semibold">사기 전에, 이 책부터</h2>
+            <p className="text-sm text-muted">
+              {topCats.length ? `자주 읽는 분야(${topCats.join(', ')}) 중` : '집에 있는 책 중'} 아직 안 읽은 책입니다.
+            </p>
+          </div>
+          {/* 섹션 소개용 사진(실제 추천 도서 표지를 대신하지 않음) */}
+          <div className="hidden w-48 shrink-0 sm:block">
+            <Photo name="unread" decorative sizes="192px" className="aspect-video rounded-xl object-cover" />
+          </div>
+        </div>
         {ownedUnread.length === 0 ? (
           <p className="text-sm text-muted">해당하는 책이 없습니다.</p>
         ) : (
@@ -83,6 +94,14 @@ export default async function RecommendPage() {
             {!isClaudeConfigured() && 'Claude API 키가 없어 AI 선정 없이 규칙 순서로 보여 줍니다.'}
           </p>
         )}
+        {!run && profile.doneCount === 0 && (
+          <div className="flex items-center gap-4 rounded-xl bg-paper p-3">
+            <Illustration name="journalEmpty" width={120} className="shrink-0" />
+            <p className="text-sm text-muted">
+              완독·별점 기록이 쌓이면 취향에 맞춘 추천 근거가 생깁니다. 지금 갱신하면 도서관 대출 데이터와 시리즈 빈 권 위주로 찾습니다.
+            </p>
+          </div>
+        )}
         <ul className="space-y-2">
           {items.map((it, i) => {
             const key = it.isbn13 ?? it.title
@@ -94,6 +113,11 @@ export default async function RecommendPage() {
                   <p className="text-xs text-muted">{[it.authors, it.publisher].filter(Boolean).join(' · ')}</p>
                   <p className="mt-1">{it.reason}</p>
                   <span className="chip mt-1 bg-paper text-muted ring-1 ring-line">{SOURCE_LABEL[it.source]}</span>
+                  {it.source !== 'series' && (
+                    <div className="mt-1">
+                      <PurchaseLinks book={it} />
+                    </div>
+                  )}
                 </div>
                 <div className="flex shrink-0 flex-col gap-1">
                   {wished.has(key) ? (
@@ -129,6 +153,7 @@ export default async function RecommendPage() {
                   {[w.authors, w.source === 'RECOMMEND' ? '추천에서 담음' : null].filter(Boolean).join(' · ')}
                 </p>
                 {w.reason && <p className="text-xs">{w.reason}</p>}
+                {w.status !== 'PURCHASED' && w.status !== 'DISMISSED' && <PurchaseLinks book={w} />}
               </div>
               <span className="chip bg-brand-soft text-brand">{WISH_STATUS_LABEL[w.status]}</span>
               {w.status !== 'PURCHASED' && (

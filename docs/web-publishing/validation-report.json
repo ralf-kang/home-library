@@ -1,0 +1,405 @@
+{
+  "date": "2026-10-04",
+  "checks": [
+    {
+      "name": "decode: photos/landing-hero-family-reading-768.webp",
+      "ok": true,
+      "detail": "768x512, 52812 bytes"
+    },
+    {
+      "name": "sha256: photos/landing-hero-family-reading-768.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: photos/landing-hero-family-reading-1536.webp",
+      "ok": true,
+      "detail": "1536x1024, 132370 bytes"
+    },
+    {
+      "name": "sha256: photos/landing-hero-family-reading-1536.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: photos/auth-reading-nook-640.webp",
+      "ok": true,
+      "detail": "640x800, 72470 bytes"
+    },
+    {
+      "name": "sha256: photos/auth-reading-nook-640.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: photos/auth-reading-nook-1120.webp",
+      "ok": true,
+      "detail": "1120x1400, 169846 bytes"
+    },
+    {
+      "name": "sha256: photos/auth-reading-nook-1120.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: photos/neighborhood-book-sharing-768.webp",
+      "ok": true,
+      "detail": "768x512, 49142 bytes"
+    },
+    {
+      "name": "sha256: photos/neighborhood-book-sharing-768.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: photos/neighborhood-book-sharing-1536.webp",
+      "ok": true,
+      "detail": "1536x1024, 130010 bytes"
+    },
+    {
+      "name": "sha256: photos/neighborhood-book-sharing-1536.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: photos/me-reading-journal-desk-768.webp",
+      "ok": true,
+      "detail": "768x432, 49304 bytes"
+    },
+    {
+      "name": "sha256: photos/me-reading-journal-desk-768.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: photos/me-reading-journal-desk-1536.webp",
+      "ok": true,
+      "detail": "1536x864, 140138 bytes"
+    },
+    {
+      "name": "sha256: photos/me-reading-journal-desk-1536.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: photos/recommend-unread-books-selection-768.webp",
+      "ok": true,
+      "detail": "768x432, 32802 bytes"
+    },
+    {
+      "name": "sha256: photos/recommend-unread-books-selection-768.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: photos/recommend-unread-books-selection-1536.webp",
+      "ok": true,
+      "detail": "1536x864, 90896 bytes"
+    },
+    {
+      "name": "sha256: photos/recommend-unread-books-selection-1536.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: photos/add-photo-shelf-framing-768.webp",
+      "ok": true,
+      "detail": "768x432, 25562 bytes"
+    },
+    {
+      "name": "sha256: photos/add-photo-shelf-framing-768.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: photos/add-photo-shelf-framing-1536.webp",
+      "ok": true,
+      "detail": "1536x864, 136176 bytes"
+    },
+    {
+      "name": "sha256: photos/add-photo-shelf-framing-1536.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: illustrations/shelves-empty-first-book.svg",
+      "ok": true,
+      "detail": "480x320, 1105 bytes"
+    },
+    {
+      "name": "sha256: illustrations/shelves-empty-first-book.svg",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: illustrations/search-empty-discovery.svg",
+      "ok": true,
+      "detail": "480x320, 867 bytes"
+    },
+    {
+      "name": "sha256: illustrations/search-empty-discovery.svg",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: illustrations/onboarding-create-library.svg",
+      "ok": true,
+      "detail": "480x320, 1178 bytes"
+    },
+    {
+      "name": "sha256: illustrations/onboarding-create-library.svg",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: illustrations/invite-family-circle.svg",
+      "ok": true,
+      "detail": "480x320, 955 bytes"
+    },
+    {
+      "name": "sha256: illustrations/invite-family-circle.svg",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: illustrations/reading-empty-journal.svg",
+      "ok": true,
+      "detail": "480x320, 863 bytes"
+    },
+    {
+      "name": "sha256: illustrations/reading-empty-journal.svg",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: illustrations/book-cover-unavailable.svg",
+      "ok": true,
+      "detail": "240x360, 574 bytes"
+    },
+    {
+      "name": "sha256: illustrations/book-cover-unavailable.svg",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: motion/add-photo-scan-poster.svg",
+      "ok": true,
+      "detail": "480x320, 1478 bytes"
+    },
+    {
+      "name": "sha256: motion/add-photo-scan-poster.svg",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: motion/add-photo-scan-once.svg",
+      "ok": true,
+      "detail": "480x320, 1903 bytes"
+    },
+    {
+      "name": "sha256: motion/add-photo-scan-once.svg",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "reduced motion: motion/add-photo-scan-once.svg",
+      "ok": true,
+      "detail": "finite CSS animation with reduced-motion rule"
+    },
+    {
+      "name": "poster: motion/add-photo-scan-once.svg",
+      "ok": true,
+      "detail": "motion/add-photo-scan-poster.svg"
+    },
+    {
+      "name": "decode: motion/book-save-success-poster.svg",
+      "ok": true,
+      "detail": "160x160, 459 bytes"
+    },
+    {
+      "name": "sha256: motion/book-save-success-poster.svg",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: motion/book-save-success-once.svg",
+      "ok": true,
+      "detail": "160x160, 677 bytes"
+    },
+    {
+      "name": "sha256: motion/book-save-success-once.svg",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "reduced motion: motion/book-save-success-once.svg",
+      "ok": true,
+      "detail": "finite CSS animation with reduced-motion rule"
+    },
+    {
+      "name": "poster: motion/book-save-success-once.svg",
+      "ok": true,
+      "detail": "motion/book-save-success-poster.svg"
+    },
+    {
+      "name": "decode: icons/feature-dashboard.svg",
+      "ok": true,
+      "detail": "24x24, 356 bytes"
+    },
+    {
+      "name": "sha256: icons/feature-dashboard.svg",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: icons/feature-shelves.svg",
+      "ok": true,
+      "detail": "24x24, 369 bytes"
+    },
+    {
+      "name": "sha256: icons/feature-shelves.svg",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: icons/feature-search.svg",
+      "ok": true,
+      "detail": "24x24, 358 bytes"
+    },
+    {
+      "name": "sha256: icons/feature-search.svg",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: icons/feature-reading.svg",
+      "ok": true,
+      "detail": "24x24, 365 bytes"
+    },
+    {
+      "name": "sha256: icons/feature-reading.svg",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: icons/feature-recommend.svg",
+      "ok": true,
+      "detail": "24x24, 382 bytes"
+    },
+    {
+      "name": "sha256: icons/feature-recommend.svg",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: icons/feature-neighborhood.svg",
+      "ok": true,
+      "detail": "24x24, 389 bytes"
+    },
+    {
+      "name": "sha256: icons/feature-neighborhood.svg",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "sha256: video/landing-family-library-story-720p.mp4",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "sha256: video/landing-family-library-story-720p.webm",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: video/landing-family-library-story-poster.webp",
+      "ok": true,
+      "detail": "1280x720, 62812 bytes"
+    },
+    {
+      "name": "sha256: video/landing-family-library-story-poster.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "sha256: video/add-photo-three-step-guide-720p.mp4",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "sha256: video/add-photo-three-step-guide-720p.webm",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "decode: video/add-photo-three-step-guide-poster.webp",
+      "ok": true,
+      "detail": "1280x720, 21574 bytes"
+    },
+    {
+      "name": "sha256: video/add-photo-three-step-guide-poster.webp",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "photo size budget",
+      "ok": true,
+      "detail": "All 12 photo WebP files below 200 KiB"
+    },
+    {
+      "name": "runtime inventory",
+      "ok": true,
+      "detail": "34 runtime media files; PNG masters and text tracks excluded"
+    },
+    {
+      "name": "support hash: video/add-photo-three-step-guide-ko.vtt",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "support hash: video/add-photo-three-step-guide-transcript.txt",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "support hash: video/landing-family-library-story-ko.vtt",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "support hash: video/landing-family-library-story-transcript.txt",
+      "ok": true,
+      "detail": "matches manifest"
+    },
+    {
+      "name": "HTML references and accessibility structure: design-guide.html",
+      "ok": true,
+      "detail": "73 references; 26 images with alt attributes"
+    },
+    {
+      "name": "HTML references and accessibility structure: landing-preview.html",
+      "ok": true,
+      "detail": "35 references; 12 images with alt attributes"
+    },
+    {
+      "name": "HTML references and accessibility structure: media-preview.html",
+      "ok": true,
+      "detail": "23 references; 3 images with alt attributes"
+    },
+    {
+      "name": "SVG XML",
+      "ok": true,
+      "detail": "16 SVG files parse successfully"
+    },
+    {
+      "name": "guide references",
+      "ok": true,
+      "detail": "All local links, srcsets and anchor targets exist; no duplicate IDs"
+    }
+  ],
+  "limitations": [
+    "Browser UI unavailable: no browser screenshots or cross-browser layout/motion verification.",
+    "Authenticated pages reviewed in local source, not through an authenticated browser session.",
+    "No deployment or live app changes; production performance metrics not measured."
+  ]
+}

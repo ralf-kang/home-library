@@ -1,10 +1,13 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import type { LocationKind, MemberRole } from '@prisma/client'
+import type { LocationKind } from '@prisma/client'
 import { prisma } from '@/lib/db'
-import { requireAdmin } from '@/server/auth'
-import { b, n, s, type ActionResult } from '@/server/form'
+import { requireCan } from '@/server/auth'
+import { n, s, type ActionResult } from '@/server/form'
+import { ownedLocation, ownedZone } from '@/server/queries'
+
+// 구성원·초대 관련 액션은 server/actions/household.ts 로 옮겼다.
 
 const CHILD_KIND: Record<LocationKind, LocationKind | null> = { ROOM: 'BOOKCASE', BOOKCASE: 'SHELF', SHELF: null }
 const CODE_RE = /^[A-Za-z0-9]{1,8}$/
@@ -22,52 +25,22 @@ function fail(e: unknown): ActionResult {
   return { ok: false, error: msg }
 }
 
-// ── 구성원 ────────────────────────────────────────────────────────────────
-
-export async function saveMember(_prev: ActionResult | null, form: FormData): Promise<ActionResult> {
-  const admin = await requireAdmin()
-  const id = s(form, 'id')
-  const name = s(form, 'name')
-  if (!name) return { ok: false, error: '이름을 입력해 주세요.' }
-  const role: MemberRole = s(form, 'role') === 'CHILD' ? 'CHILD' : 'ADULT'
-  const isAdmin = b(form, 'isAdmin')
-  try {
-    if (id) {
-      if (id === admin.id && !isAdmin) return { ok: false, error: '자기 자신의 관리자 권한은 뺄 수 없습니다.' }
-      await prisma.member.update({ where: { id }, data: { name, role, isAdmin, sortOrder: n(form, 'sortOrder') ?? 0 } })
-      return done('구성원을 저장했습니다.')
-    }
-    await prisma.member.create({ data: { name, role, isAdmin, sortOrder: n(form, 'sortOrder') ?? 0 } })
-    return done('구성원을 추가했습니다.')
-  } catch (e) {
-    return fail(e)
-  }
-}
-
-export async function deleteMember(id: string): Promise<ActionResult> {
-  const admin = await requireAdmin()
-  if (id === admin.id) return { ok: false, error: '자기 자신은 지울 수 없습니다.' }
-  try {
-    // 읽기 기록·독후감도 함께 지워진다(Cascade). 소장본 소유자는 비워진다(SetNull).
-    await prisma.member.delete({ where: { id } })
-    return done('구성원을 지웠습니다.')
-  } catch (e) {
-    return fail(e)
-  }
-}
-
 // ── 구역 ──────────────────────────────────────────────────────────────────
 
 export async function saveZone(_prev: ActionResult | null, form: FormData): Promise<ActionResult> {
-  await requireAdmin()
+  const { household } = await requireCan('location.manage')
   const id = s(form, 'id')
   const name = s(form, 'name')
   const color = s(form, 'color') ?? '#64748b'
   if (!name) return { ok: false, error: '구역 이름을 입력해 주세요.' }
   if (!/^#[0-9a-fA-F]{6}$/.test(color)) return { ok: false, error: '색상은 #RRGGBB 형식이어야 합니다.' }
   try {
-    if (id) await prisma.zone.update({ where: { id }, data: { name, color } })
-    else await prisma.zone.create({ data: { name, color } })
+    if (id) {
+      if (!(await ownedZone(household.id, id))) return { ok: false, error: '없는 구역입니다.' }
+      await prisma.zone.update({ where: { id }, data: { name, color } })
+    } else {
+      await prisma.zone.create({ data: { householdId: household.id, name, color } })
+    }
     return done('구역을 저장했습니다.')
   } catch (e) {
     return fail(e)
@@ -75,7 +48,8 @@ export async function saveZone(_prev: ActionResult | null, form: FormData): Prom
 }
 
 export async function deleteZone(id: string): Promise<ActionResult> {
-  await requireAdmin()
+  const { household } = await requireCan('location.manage')
+  if (!(await ownedZone(household.id, id))) return { ok: false, error: '없는 구역입니다.' }
   try {
     await prisma.zone.delete({ where: { id } }) // 칸의 구역 연결은 비워진다(SetNull)
     return done('구역을 지웠습니다.')
@@ -89,9 +63,11 @@ export async function deleteZone(id: string): Promise<ActionResult> {
 /**
  * 위치 추가/수정. 부모의 종류에 따라 자식 종류가 정해진다(공간→책장→칸).
  * 코드는 영문·숫자 1~8자(LV, B2, S3). 같은 부모 안에서 코드가 겹치면 안 된다.
+ * 최상위(공간)는 parentId 가 null 이라 DB unique 가 가구를 구분하지 못하므로 여기서 검사한다.
  */
 export async function saveLocation(_prev: ActionResult | null, form: FormData): Promise<ActionResult> {
-  await requireAdmin()
+  const { household } = await requireCan('location.manage')
+  const hid = household.id
   const id = s(form, 'id')
   const code = (s(form, 'code') ?? '').toUpperCase()
   const name = s(form, 'name')
@@ -99,21 +75,30 @@ export async function saveLocation(_prev: ActionResult | null, form: FormData): 
   const parentId = s(form, 'parentId')
   if (!CODE_RE.test(code)) return { ok: false, error: '코드는 영문·숫자 1~8자로 입력해 주세요(예: LV, B2, S3).' }
   if (!name) return { ok: false, error: '이름을 입력해 주세요.' }
+  if (zoneId && !(await ownedZone(hid, zoneId))) return { ok: false, error: '없는 구역입니다.' }
   try {
     if (id) {
+      const loc = await ownedLocation(hid, id)
+      if (!loc) return { ok: false, error: '없는 위치입니다.' }
+      if (!loc.parentId) {
+        const dup = await prisma.location.findFirst({ where: { householdId: hid, parentId: null, code, id: { not: id } } })
+        if (dup) return { ok: false, error: '같은 코드의 공간이 이미 있습니다.' }
+      }
       await prisma.location.update({ where: { id }, data: { code, name, zoneId, sortOrder: n(form, 'sortOrder') ?? undefined } })
       return done('위치를 저장했습니다.')
     }
     let kind: LocationKind = 'ROOM'
     if (parentId) {
-      const parent = await prisma.location.findUnique({ where: { id: parentId } })
+      const parent = await ownedLocation(hid, parentId)
       if (!parent) return { ok: false, error: '상위 위치가 없습니다.' }
       const child = CHILD_KIND[parent.kind]
       if (!child) return { ok: false, error: '칸 아래에는 위치를 만들 수 없습니다.' }
       kind = child
+    } else if (await prisma.location.findFirst({ where: { householdId: hid, parentId: null, code } })) {
+      return { ok: false, error: '같은 코드의 공간이 이미 있습니다.' }
     }
-    const siblings = await prisma.location.count({ where: { parentId } })
-    await prisma.location.create({ data: { kind, code, name, zoneId, parentId, sortOrder: siblings } })
+    const siblings = await prisma.location.count({ where: { householdId: hid, parentId } })
+    await prisma.location.create({ data: { householdId: hid, kind, code, name, zoneId, parentId, sortOrder: siblings } })
     return done('위치를 추가했습니다.')
   } catch (e) {
     return fail(e)
@@ -122,9 +107,12 @@ export async function saveLocation(_prev: ActionResult | null, form: FormData): 
 
 /** 칸 여러 개를 한 번에 만든다(책장에 S1..Sn). 서가 초기 구축용. */
 export async function addShelves(bookcaseId: string, form: FormData): Promise<void> {
-  await requireAdmin()
+  const { household } = await requireCan('location.manage')
   const count = Math.min(20, Math.max(1, n(form, 'count') ?? 1))
-  const bookcase = await prisma.location.findUnique({ where: { id: bookcaseId }, include: { children: true } })
+  const bookcase = await prisma.location.findFirst({
+    where: { id: bookcaseId, householdId: household.id },
+    include: { children: true },
+  })
   if (!bookcase || bookcase.kind !== 'BOOKCASE') throw new Error('책장에만 칸을 추가할 수 있습니다.')
   const used = new Set(bookcase.children.map((c) => c.code))
   let next = 1
@@ -132,7 +120,7 @@ export async function addShelves(bookcaseId: string, form: FormData): Promise<vo
   for (let i = 0; i < count; i++) {
     while (used.has(`S${next}`)) next++
     used.add(`S${next}`)
-    data.push({ kind: 'SHELF' as const, code: `S${next}`, name: `${next}칸`, parentId: bookcaseId, sortOrder: next })
+    data.push({ householdId: household.id, kind: 'SHELF' as const, code: `S${next}`, name: `${next}칸`, parentId: bookcaseId, sortOrder: next })
   }
   await prisma.location.createMany({ data })
   revalidatePath('/settings')
@@ -140,9 +128,9 @@ export async function addShelves(bookcaseId: string, form: FormData): Promise<vo
 }
 
 export async function deleteLocation(id: string): Promise<ActionResult> {
-  await requireAdmin()
-  const loc = await prisma.location.findUnique({
-    where: { id },
+  const { household } = await requireCan('location.manage')
+  const loc = await prisma.location.findFirst({
+    where: { id, householdId: household.id },
     include: { _count: { select: { children: true, copies: true } } },
   })
   if (!loc) return { ok: false, error: '없는 위치입니다.' }

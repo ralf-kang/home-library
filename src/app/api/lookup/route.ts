@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/db'
 import { guessCategory, isKakaoConfigured, kakaoSearch, lookupIsbn } from '@/lib/book-lookup'
 import { normalizeIsbn } from '@/lib/isbn'
-import { requireAdmin } from '@/server/auth'
+import { requireCan } from '@/server/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,13 +12,16 @@ export const dynamic = 'force-dynamic'
  *  ?q=제목 저자   → 후보 목록(카카오 키가 있을 때만)
  */
 export async function GET(req: NextRequest) {
-  await requireAdmin()
+  const { household } = await requireCan('book.write')
   const isbnParam = req.nextUrl.searchParams.get('isbn')
   const q = req.nextUrl.searchParams.get('q')
   if (isbnParam) {
     const isbn13 = normalizeIsbn(isbnParam)
     if (!isbn13) return Response.json({ error: 'ISBN 형식이 올바르지 않습니다.' }, { status: 400 })
-    const existing = await prisma.book.findUnique({ where: { isbn13 }, select: { id: true, title: true } })
+    const existing = await prisma.book.findUnique({
+      where: { householdId_isbn13: { householdId: household.id, isbn13 } },
+      select: { id: true, title: true },
+    })
     const found = await lookupIsbn(isbn13)
     return Response.json({
       isbn13,

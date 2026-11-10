@@ -481,3 +481,17 @@ model RecommendationRun {
   @@index([memberId, createdAt])
   @@map("recommendation_runs")
 }
+
+// 이메일 인증코드(OTP) — 가족 전용 로그인. recipient 는 역할 키(HUSBAND/WIFE). 코드 원문은 저장하지 않고 HMAC 만 둔다.
+model OtpCode {
+  id         String    @id @default(cuid())
+  recipient  String
+  codeHash   String    @map("code_hash")
+  expiresAt  DateTime  @map("expires_at")
+  attempts   Int       @default(0)
+  consumedAt DateTime? @map("consumed_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  @@index([recipient, createdAt])
+  @@map("otp_codes")
+}

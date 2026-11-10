@@ -24,14 +24,44 @@ export function sessionCookieOptions(maxAge = SESSION_TTL_SECONDS) {
 }
 
 /**
- * 세션 발급 후 이동. next(초대 링크 등)가 있으면 그쪽으로, 없으면 가구가 있으면 대시보드·없으면 온보딩.
- * 기본 가구는 가장 먼저 가입한 가구.
+ * 이메일 인증 로그인 사용자. 식별자는 기존 테스트 로그인과 같은 'dev:<email>'(이미 만든 계정·서재를 잇는다).
+ * 이름은 처음 만들 때만 정하고, 이후에는 사용자가 바꾼 이름을 덮어쓰지 않는다.
  */
-export async function finishLogin(userId: string, next: string | null, origin: string) {
+export async function upsertEmailUser(email: string, defaultName: string) {
+  return prisma.user.upsert({
+    where: { googleSub: `dev:${email}` },
+    create: { googleSub: `dev:${email}`, email, name: defaultName, lastLoginAt: new Date() },
+    update: { lastLoginAt: new Date() },
+  })
+}
+
+/**
+ * 가족 전용 배포: 아직 어느 서재에도 속하지 않은 사용자가 로그인하면, 서재가 정확히 하나일 때 그 서재에
+ * 관리자(ADMIN)로 합류시킨다(두 번째 서재가 생기지 않도록). 같은 이름의 계정 없는 구성원이 있으면 그 프로필에 연결한다.
+ */
+export async function joinSoleHousehold(userId: string, name: string) {
+  if (await prisma.member.findFirst({ where: { userId }, select: { id: true } })) return
+  const households = await prisma.household.findMany({ select: { id: true }, take: 2 })
+  if (households.length !== 1) return
+  const householdId = households[0].id
+  const linked = await prisma.member.updateMany({ where: { householdId, name, userId: null }, data: { userId } })
+  if (linked.count > 0) return
+  const taken = await prisma.member.findFirst({ where: { householdId, name }, select: { id: true } })
+  await prisma.member.create({ data: { householdId, userId, name: taken ? `${name}(${userId.slice(-4)})` : name, role: 'ADMIN' } })
+}
+
+/** 로그인 후 이동할 곳과 세션 토큰. next(초대 링크 등)가 있으면 그쪽, 없으면 가구가 있으면 대시보드·없으면 온보딩. */
+export async function sessionFor(userId: string, next: string | null) {
   const first = await prisma.member.findFirst({ where: { userId }, orderBy: { createdAt: 'asc' } })
   const target = safeNext(next) ?? (first ? '/dashboard' : '/onboarding')
+  return { target, token: await signSession({ userId, householdId: first?.householdId }) }
+}
+
+/** 세션 발급 후 이동(리디렉트 응답). 기본 가구는 가장 먼저 가입한 가구. */
+export async function finishLogin(userId: string, next: string | null, origin: string) {
+  const { target, token } = await sessionFor(userId, next)
   const res = NextResponse.redirect(new URL(target, origin), 303)
-  res.cookies.set(SESSION_COOKIE, await signSession({ userId, householdId: first?.householdId }), sessionCookieOptions())
+  res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions())
   return res
 }
 

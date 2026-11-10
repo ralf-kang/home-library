@@ -24,8 +24,8 @@ function useNav(hasHousehold: boolean, canWrite: boolean) {
         { href: '/search', label: '검색', icon: ICON.search, mobile: true },
         ...(canWrite ? [{ href: '/add', label: '등록', icon: ICON.add }] : []),
         { href: '/me', label: '내 독서', icon: ICON.me, mobile: true },
-        { href: '/recommend', label: '추천', icon: ICON.rec },
-        { href: '/neighborhood', label: '동네', icon: ICON.town, mobile: true },
+        { href: '/recommend', label: '추천', icon: ICON.rec, mobile: true },
+        // 가족 전용 배포라 동네 공유 메뉴는 숨긴다(경로·코드는 유지). 후보 기능 메모: work-library docs
       ]
     : [{ href: '/neighborhood', label: '동네', icon: ICON.town, mobile: true }]
   const active = (href: string) => path === href || path.startsWith(href + '/')

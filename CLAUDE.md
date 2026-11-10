@@ -23,6 +23,10 @@
 - `Book.titleChosung`은 저장 경로마다 `toChosung(title)`로 채운다. 새 저장 경로를 추가할 때 빠뜨리면 초성 검색이 안 된다.
 
 ## 인증·인가
+- **지금 운영(.30)은 가족 전용**: 첫 화면(`/`, `/login`)은 남편/아내 선택 → 이메일 6자리 코드 로그인(`src/components/LoginCard.tsx`,
+  `/api/auth/send-code`·`verify-code`, `src/lib/otp.ts`). 주소는 `AUTH_HUSBAND_EMAIL`/`AUTH_WIFE_EMAIL`(서버 .env.local만), 메일은 `SMTP_*`.
+  코드는 원문 저장 없이 HMAC(AUTH_SECRET)만, 10분·5회·재발송 60초. 사용자 식별자는 `dev:<email>`(기존 계정 유지).
+  서재에 속하지 않은 사용자가 로그인하면 서재가 하나뿐일 때 ADMIN으로 합류(`joinSoleHousehold`). 동네 메뉴는 숨김.
 - 구글 OIDC(Authorization Code + PKCE)를 `jose`로 직접 구현(`src/lib/google-oidc.ts`). 외부 인증 라이브러리 없음.
   리디렉션 URI 규칙: HTTPS 또는 `http://localhost`만, IP 호스트 불가 → `APP_URL`로 공개 주소를 고정한다.
 - 세션 JWT에는 `{ userId, householdId? }`만 담는다. 역할은 매 요청 DB에서 다시 조회한다(`src/server/auth.ts`).
@@ -31,7 +35,7 @@
 - proxy만 믿지 않는다: **모든 페이지·서버 액션·API 최상단**에서 `requireUser()` / `requireMember(minRole)` /
   `requireCan(action)` / `requirePlatformAdmin()`. 권한 표는 `src/lib/permissions.ts`(OWNER > ADMIN > MEMBER > CHILD).
 - 계정 없는 구성원(아이)의 기록은 `reading.proxy` 권한으로 대리 입력(`asMemberId`). 계정 있는 가족 기록은 본인만.
-- 테스트 로그인(`/api/auth/dev`)은 `ENABLE_DEV_LOGIN=1`일 때만 존재. 운영에서 켜지 말 것.
+- 테스트 로그인(`/api/auth/dev`)은 `ENABLE_DEV_LOGIN=1`일 때만 존재. 운영에서 켜지 말 것(켜면 이메일만으로 로그인되어 인증코드가 무의미).
 - 초대 토큰은 원문을 저장하지 않고 SHA-256 해시만 둔다. 사용 횟수는 조건부 `updateMany`로 원자적으로 올린다.
 
 ## seed
